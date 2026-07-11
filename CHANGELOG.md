@@ -2,6 +2,18 @@
 
 Append-only session history, newest first.
 
+## 2026-07-12 — squirrels: the temptation that tugs at the dog
+
+- Squirrels lounge near the sidewalk edges and, most cruelly, on the far
+  shoulder across the bike lane. A nearby one physically PULLS Millie
+  toward it (a real velocity bias the player fights or indulges, with a
+  temptation marker over her head). Touching one pays +2 "almost got
+  it!" - but it always escapes at the last second, as nature demands.
+  They outrun the dog in a straight line, zigzag when fleeing, and a
+  bark scares them off (bark's second job: clearing your head).
+- Skipped while planted, tumbling, or mid-pee. The pull can absolutely
+  drift you into the bike lane; that is the point.
+
 ## 2026-07-12 — game flow: title, results, rating
 
 - Title screen ("press SPACE / A to go walkies") holds the world until

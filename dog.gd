@@ -17,6 +17,7 @@ var squat_ui := 0.0
 var bark_cd := 0.0
 var bark_anim := 0.0
 var peeing := false
+var tempted := false
 var facing := Vector2.UP
 var hip_dir := Vector2.DOWN
 var gait := 0.0
@@ -187,6 +188,9 @@ func _draw() -> void:
 			var a2 := TAU * i / 4.0 + 0.4
 			var p := Vector2.from_angle(a2) * 19.0
 			draw_line(p, p + Vector2.from_angle(a2) * 6.0, Color(0.3, 0.25, 0.2), 3.0)
+	if tempted and tumble_t <= 0.0:
+		draw_line(Vector2(15, -30), Vector2(15, -22), Color(0.95, 0.62, 0.55), 3.0)
+		draw_circle(Vector2(15, -18), 2.0, Color(0.95, 0.62, 0.55))
 	if bark_anim > 0.0:
 		var r := (0.35 - bark_anim) / 0.35
 		draw_arc(head + facing * 8.0, 10.0 + r * 34.0, 0, TAU, 24, Color(1, 1, 1, 0.7 * (1.0 - r)), 2.0)

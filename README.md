@@ -53,6 +53,9 @@ mutt who squats like a lady.
 - A marked bike lane runs alongside the sidewalk: fast commuters hold
   their line, kids on scooters weave everywhere - including onto the
   sidewalk. The far shoulder has good sniffing, if you dare cross.
+- Squirrels. A nearby squirrel pulls at you - literally, your paws drift
+  toward it - and chasing one pays bones even though it always escapes
+  at the last second. Bark to scare them off when duty calls.
 - The human owns the retractable leash. "click!" means they just changed
   its length on a whim — sometimes reeling you in against your will.
 - The human telegraphs every event with a speech bubble: "ring ring" stops,

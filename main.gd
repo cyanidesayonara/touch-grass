@@ -46,6 +46,7 @@ var tables: Array[Vector2] = []
 var deco_pole_count := 0
 var lane_state: Array = []
 var vspawn_t := 2.5
+var sq_spawn_t := 6.0
 var whirl_arm := 0.0
 var whirl_wind_acc := 0.0
 var whirl_start_wind := 0.0
@@ -332,6 +333,8 @@ func _physics_process(delta: float) -> void:
 	_apply_leash(delta)
 	_lanes(delta)
 	_vlane(delta)
+	_squirrels(delta)
+	_temptation(delta)
 	_hazards(delta)
 	_pickups(delta)
 	_bodily(delta)
@@ -529,6 +532,59 @@ func _vlane(delta: float) -> void:
 			b.lane_keep(BLANE_L + 14.0, BLANE_R - 14.0)
 
 
+func _squirrels(delta: float) -> void:
+	sq_spawn_t -= delta
+	if sq_spawn_t > 0.0:
+		return
+	sq_spawn_t = randf_range(7.0, 13.0)
+	if get_tree().get_nodes_in_group("squirrels").size() >= 2:
+		return
+	var y: float = cam.position.y - randf_range(420.0, 640.0)
+	if y < GATE_Y + 100.0 or y > START_Y - 100.0:
+		return
+	var roll := randf()
+	var x := 0.0
+	if roll < 0.35:
+		x = randf_range(365.0, 400.0)
+	elif roll < 0.65:
+		x = randf_range(880.0, 915.0)
+	else:
+		# the far shoulder: the ultimate temptation, live traffic between
+		x = randf_range(BLANE_R + 8.0, SHOULDER_R - 8.0)
+	var s := Node2D.new()
+	s.set_script(load("res://squirrel.gd"))
+	s.position = Vector2(x, y)
+	s.z_index = 9
+	add_child(s)
+	s.setup(self, dog)
+
+
+func _temptation(delta: float) -> void:
+	# a nearby squirrel physically pulls at Millie; fight it or lean in
+	dog.tempted = false
+	if dog.planted or dog.is_tumbling() or dog.peeing:
+		return
+	var best_d := 220.0
+	var best := Vector2(INF, INF)
+	for s in get_tree().get_nodes_in_group("squirrels"):
+		if s.state == 2:
+			continue
+		var d: float = dog.global_position.distance_to(s.global_position)
+		if d < best_d:
+			best_d = d
+			best = s.global_position
+	if best.x < INF:
+		dog.tempted = true
+		var pull := (best - dog.global_position).normalized() * 320.0 * (1.0 - best_d / 220.0)
+		dog.velocity += pull * delta
+
+
+func on_squirrel_chase(pos: Vector2) -> void:
+	bones += 2
+	float_text(pos, "almost got it! +2", Color(1, 0.95, 0.7))
+	_update_hud()
+
+
 func _hazards(_delta: float) -> void:
 	for m in manholes:
 		if human.global_position.distance_to(m) < 26.0:
@@ -715,6 +771,9 @@ func _check_win() -> void:
 func on_bark(pos: Vector2) -> void:
 	if human.global_position.distance_to(pos) < 170.0:
 		human.halt(0.8)
+	for s in get_tree().get_nodes_in_group("squirrels"):
+		if s.global_position.distance_to(pos) < 200.0:
+			s.scare()
 
 
 func set_leash_target(v: float) -> void:
