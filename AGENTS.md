@@ -31,7 +31,8 @@ touch-grass/
   dog.gd               # Player: move, plant (anchor), bark
   human.gd             # The payload: autopilot walking + telegraphed events
   leash.gd             # The verlet rope: visual AND gameplay constraint
-  bike.gd              # Crossing hazard, self-managing
+  bike.gd              # Riders: crossing bikes, lane commuters, scooter kids
+  pee_tube.gd          # HUD test-tube widget for the pee meter
   PROJECT.md              # Design pillars, phased roadmap (reference doc)
   AGENTS.md            # This file (AI context, living document)
   CHANGELOG.md         # Append-only session history

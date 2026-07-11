@@ -2,6 +2,19 @@
 
 Append-only session history, newest first.
 
+## 2026-07-11 — the parallel bike lane (settings catalog no. 3, in the base walk)
+
+- The world got wider: sidewalk, curb, a marked bike lane running the
+  whole route, and a narrow far shoulder holding two hydrants and a kebab
+  - crossing the lane is now a voluntary risk/reward decision, and a bad
+  fling can deposit the human into bicycle traffic.
+- bike.gd generalized into a rider that travels any direction (crossing
+  bikes, lane commuters, scooter kids share it; art rotates to heading).
+- Fast commuters hold their line and knock the human flat. Wobbly kids
+  on slow scooters weave inside their band, swerve at random, and
+  sometimes ride on the sidewalk itself; they bump ("sorry!") instead of
+  wrecking. Kids never award close-call bones, commuters still do.
+
 ## 2026-07-11 — whirl v3 (pure tangent), pee anywhere, the test tube
 
 - Fixed the stuck-behind-the-pole fling: launching "toward the dog" often

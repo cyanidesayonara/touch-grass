@@ -41,6 +41,9 @@ Playtest builds ship to a private itch.io page.
   down. Once per walk nature calls for a longer stop - find a safe
   moment to squat, or the dog will pick the moment for you.
 - Open holes swallow dogs too. Watch your own paws.
+- A marked bike lane runs alongside the sidewalk: fast commuters hold
+  their line, kids on scooters weave everywhere - including onto the
+  sidewalk. The far shoulder has good sniffing, if you dare cross.
 - The human owns the retractable leash. "click!" means they just changed
   its length on a whim — sometimes reeling you in against your will.
 - The human telegraphs every event with a speech bubble: "ring ring" stops,

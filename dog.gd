@@ -80,11 +80,11 @@ func tick(delta: float) -> void:
 		main.on_bark(global_position)
 
 
-func hit_by_bike(dir: int) -> void:
+func hit_by_rider(dir: Vector2) -> void:
 	if tumble_t > 0.0:
 		return
 	tumble_t = 0.8
-	velocity = Vector2(dir * 320.0, 0)
+	velocity = dir * 320.0
 	main.float_text(global_position, "yipe!", Color(1, 0.8, 0.6))
 
 

@@ -309,6 +309,17 @@ func release_whirl() -> void:
 	main.shake_t = maxf(float(main.shake_t), 0.35)
 
 
+func bumped(dir: Vector2) -> void:
+	# a slow scooter kid is a shove, not a wipeout
+	if state in [HState.FALLEN, HState.WHIRL]:
+		return
+	state = HState.STUMBLE
+	state_t = 0.45
+	velocity = dir * 190.0
+	telegraph_t = 0.0
+	bubble.visible = false
+
+
 func gross_out() -> void:
 	# reaction to the dog answering nature's call: stops to bag it
 	if state in [HState.FALLEN, HState.WHIRL]:

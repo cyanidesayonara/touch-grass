@@ -5,6 +5,11 @@ extends Node2D
 
 const SIDEWALK_LEFT := 340.0
 const SIDEWALK_RIGHT := 940.0
+# parallel bike lane along the right side, plus a narrow far shoulder
+# with temptations - crossing the lane is a voluntary risk
+const BLANE_L := 948.0
+const BLANE_R := 1036.0
+const SHOULDER_R := 1060.0
 const START_Y := 260.0
 const GATE_Y := -5000.0
 const LEASH_LENGTH := 260.0
@@ -40,6 +45,7 @@ var cellars: Array[Rect2] = []
 var tables: Array[Vector2] = []
 var deco_pole_count := 0
 var lane_state: Array = []
+var vspawn_t := 2.5
 
 var leash_len := LEASH_LENGTH
 var leash_target := LEASH_LENGTH
@@ -147,9 +153,10 @@ func _build_level_data() -> void:
 		Vector2(SIDEWALK_LEFT + 45, -500), Vector2(SIDEWALK_RIGHT - 45, -1500),
 		Vector2(SIDEWALK_LEFT + 45, -2300), Vector2(SIDEWALK_RIGHT - 45, -3300),
 		Vector2(SIDEWALK_LEFT + 45, -4600),
+		Vector2(SHOULDER_R - 12, -1000), Vector2(SHOULDER_R - 12, -3600),
 	]:
 		hydrants.append({"pos": hp, "done": false, "progress": 0.0})
-	for kp in [Vector2(620, -1900), Vector2(700, -4200)]:
+	for kp in [Vector2(620, -1900), Vector2(700, -4200), Vector2(SHOULDER_R - 12, -2400)]:
 		kebabs.append({"pos": kp, "eaten": false})
 	for i in range(140):
 		var side := -1.0 if randf() < 0.5 else 1.0
@@ -168,7 +175,7 @@ func _build_walls() -> void:
 	var span := absf(START_Y - GATE_Y) + 1600.0
 	var defs := [
 		[Vector2(SIDEWALK_LEFT - 50.0, mid_y), Vector2(100, span)],
-		[Vector2(SIDEWALK_RIGHT + 50.0, mid_y), Vector2(100, span)],
+		[Vector2(SHOULDER_R + 50.0, mid_y), Vector2(100, span)],
 		[Vector2(640, START_Y + 160.0), Vector2(1400, 100)],
 		[Vector2(640, GATE_Y - 700.0), Vector2(1400, 100)],
 	]
@@ -292,6 +299,7 @@ func _physics_process(delta: float) -> void:
 	leash.rest_len = leash_len
 	_apply_leash(delta)
 	_lanes(delta)
+	_vlane(delta)
 	_hazards(delta)
 	_pickups(delta)
 	_bodily(delta)
@@ -414,7 +422,37 @@ func _spawn_bike(y: float, dir: int) -> void:
 	b.position = Vector2(-250.0 if dir > 0 else 1530.0, y)
 	b.z_index = 12
 	add_child(b)
-	b.setup(self, dog, human, dir)
+	b.setup(self, dog, human, Vector2(dir * randf_range(480.0, 640.0), 0.0), "bike")
+
+
+func _vlane(delta: float) -> void:
+	# the parallel bike lane: fast commuters hold their line, kids on
+	# scooters weave - and sometimes ride on the sidewalk itself
+	vspawn_t -= delta
+	if vspawn_t > 0.0:
+		return
+	vspawn_t = randf_range(2.2, 4.2)
+	if get_tree().get_nodes_in_group("bikes").size() >= 7:
+		return
+	var kid := randf() < 0.38
+	var up := randf() < 0.62
+	var speed := randf_range(70.0, 120.0) if kid else randf_range(300.0, 460.0)
+	var y: float = cam.position.y + (560.0 if up else -560.0)
+	if y > START_Y + 150.0 or y < GATE_Y - 400.0:
+		return
+	var on_sidewalk := kid and randf() < 0.45
+	var x := randf_range(380.0, 900.0) if on_sidewalk else randf_range(BLANE_L + 16.0, BLANE_R - 16.0)
+	var b := Node2D.new()
+	b.set_script(load("res://bike.gd"))
+	b.position = Vector2(x, y)
+	b.z_index = 12
+	add_child(b)
+	b.setup(self, dog, human, Vector2(0.0, -speed if up else speed), "kid" if kid else "bike")
+	if kid:
+		if on_sidewalk:
+			b.lane_keep(370.0, 910.0)
+		else:
+			b.lane_keep(BLANE_L + 14.0, BLANE_R - 14.0)
 
 
 func _hazards(_delta: float) -> void:
@@ -654,6 +692,23 @@ func _draw() -> void:
 		y -= 150.0
 	draw_line(Vector2(SIDEWALK_LEFT, bottom), Vector2(SIDEWALK_LEFT, GATE_Y), COL_SEAM, 3.0)
 	draw_line(Vector2(SIDEWALK_RIGHT, bottom), Vector2(SIDEWALK_RIGHT, GATE_Y), COL_SEAM, 3.0)
+	# parallel bike lane + far shoulder
+	draw_rect(Rect2(BLANE_L, GATE_Y - 40.0, BLANE_R - BLANE_L, bottom - GATE_Y), Color(0.4, 0.31, 0.29))
+	draw_rect(Rect2(BLANE_R, GATE_Y - 40.0, SHOULDER_R - BLANE_R, bottom - GATE_Y), COL_SIDEWALK)
+	var dy := START_Y + 200.0
+	while dy > GATE_Y:
+		draw_line(Vector2((BLANE_L + BLANE_R) / 2.0, dy), Vector2((BLANE_L + BLANE_R) / 2.0, dy - 26.0), Color(0.85, 0.82, 0.75, 0.5), 2.0)
+		dy -= 64.0
+	var gy := START_Y - 100.0
+	while gy > GATE_Y:
+		var cxx := (BLANE_L + BLANE_R) / 2.0 - 14.0
+		draw_circle(Vector2(cxx - 7, gy), 4.0, Color(1, 1, 1, 0.3))
+		draw_circle(Vector2(cxx + 7, gy), 4.0, Color(1, 1, 1, 0.3))
+		draw_line(Vector2(cxx - 7, gy), Vector2(cxx + 7, gy - 6), Color(1, 1, 1, 0.3), 2.0)
+		gy -= 600.0
+	draw_line(Vector2(BLANE_L, bottom), Vector2(BLANE_L, GATE_Y), COL_SEAM, 3.0)
+	draw_line(Vector2(BLANE_R, bottom), Vector2(BLANE_R, GATE_Y), COL_SEAM, 2.0)
+	draw_line(Vector2(SHOULDER_R, bottom), Vector2(SHOULDER_R, GATE_Y), COL_SEAM, 3.0)
 	# bike lanes crossing the sidewalk
 	for i in range(LANE_YS.size()):
 		var ly: float = LANE_YS[i]
