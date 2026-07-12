@@ -67,6 +67,17 @@ var stray_t := 0.0
 var mark_quest_done := false
 var bins: Array[Vector2] = []
 var bag_pending := false
+
+# per-walk counters feeding the rotating quests
+var squirrels_chased := 0
+var close_calls := 0
+var sniffs_done := 0
+var kebabs_eaten := 0
+var saves_done := 0
+var flings_done := 0
+var dog_hits := 0
+var quest_pool: Array[Dictionary] = []
+var active_quests: Array[Dictionary] = []
 var poop_state := 0  # 0 not yet, 1 urge, 2 done, 3 forced telegraph, 4 forced squat
 var urge_y := -2000.0
 var urge_timer := 0.0
@@ -85,6 +96,7 @@ var title_l: Label
 var sub_l: Label
 var prompt_l: Label
 var prompt_tw: Tween
+var quests_label: Label
 var msg_label: Label
 var dim: ColorRect
 var font: Font
@@ -97,6 +109,7 @@ func _ready() -> void:
 	_build_level_data()
 	_build_walls()
 	_build_entities()
+	_build_quests()
 	_build_hud()
 	# title screen holds the world until the player goes walkies;
 	# headless runs (CI smoke test) start immediately
@@ -257,6 +270,36 @@ func _build_entities() -> void:
 	cam.make_current()
 
 
+func _build_quests() -> void:
+	# three objectives per walk, drawn from the pool: consecutive walks
+	# should not feel identical. "Maintain" quests (target 1, true at
+	# start) are things you can LOSE; they never pop mid-walk.
+	quest_pool = [
+		{"text": "chase %d squirrels", "target": 2, "fn": func() -> int: return squirrels_chased},
+		{"text": "%d close calls", "target": 3, "fn": func() -> int: return close_calls},
+		{"text": "mark %d spots", "target": 5, "fn": func() -> int: return marks.size()},
+		{"text": "complete %d good sniffs", "target": 4, "fn": func() -> int: return sniffs_done},
+		{"text": "steal %d dropped snacks", "target": 2, "fn": func() -> int: return kebabs_eaten},
+		{"text": "%d nice saves", "target": 2, "fn": func() -> int: return saves_done},
+		{"text": "fling the owner off a pole", "target": 1, "fn": func() -> int: return flings_done},
+		{"text": "phone without a scratch", "target": 1, "fn": func() -> int: return 1 if phone_hp == 3 else 0},
+		{"text": "keep your own paws clean", "target": 1, "fn": func() -> int: return 1 if dog_hits == 0 else 0},
+		{"text": "get the business bagged", "target": 1, "fn": func() -> int: return 1 if poop_state == 2 and not bag_pending else 0},
+	]
+	quest_pool.shuffle()
+	for i in range(3):
+		var q: Dictionary = quest_pool[i]
+		q["was_done"] = int(q.fn.call()) >= int(q.target)
+		active_quests.append(q)
+
+
+func _quest_text(q: Dictionary) -> String:
+	var s: String = q.text
+	if "%d" in s:
+		s = s % int(q.target)
+	return s
+
+
 func _build_hud() -> void:
 	hud = CanvasLayer.new()
 	add_child(hud)
@@ -268,6 +311,8 @@ func _build_hud() -> void:
 	tube.size = Vector2(16, 84)
 	hud.add_child(tube)
 	pee_label = _hud_label(Vector2(52, 112), 17)
+	quests_label = _hud_label(Vector2(936, 16), 15)
+	quests_label.size = Vector2(330, 110)
 	var hint := _hud_label(Vector2(24, 686), 15)
 	hint.text = "WASD / stick: move    SPACE / A: dig in (squat when nature calls)    Q / X: pee    E / B: bark    R: restart"
 	hint.modulate.a = 0.75
@@ -318,6 +363,18 @@ func _update_hud() -> void:
 	elif pee >= 0.999:
 		status += "    FULL!"
 	pee_label.text = status
+	var qlines := "TODAY'S WALK:"
+	for q in active_quests:
+		var got: int = q.fn.call()
+		var done := got >= int(q.target)
+		var line := ("[x] " if done else "[ ] ") + _quest_text(q)
+		if not done and int(q.target) > 1:
+			line += "  %d/%d" % [mini(got, int(q.target)), int(q.target)]
+		qlines += "\n" + line
+		if done and not q.get("noted", false) and not q.get("was_done", false) and elapsed > 3.0:
+			q["noted"] = true
+			float_text(dog.global_position, "quest done!", Color(0.8, 1.0, 0.8))
+	quests_label.text = qlines
 
 
 func _physics_process(delta: float) -> void:
@@ -388,6 +445,7 @@ func _apply_leash(delta: float) -> void:
 	if human.just_flung:
 		# a fresh fling must never be arrested by a residual wrap
 		human.just_flung = false
+		flings_done += 1
 		leash.free_slip_t = 1.2
 	var used: float = leash.used_length()
 	var excess := used - leash_len
@@ -581,8 +639,13 @@ func _temptation(delta: float) -> void:
 
 func on_squirrel_chase(pos: Vector2) -> void:
 	bones += 2
+	squirrels_chased += 1
 	float_text(pos, "almost got it! +2", Color(1, 0.95, 0.7))
 	_update_hud()
+
+
+func on_dog_hit() -> void:
+	dog_hits += 1
 
 
 func _hazards(_delta: float) -> void:
@@ -607,12 +670,14 @@ func _pickups(delta: float) -> void:
 			if h.progress >= 0.8:
 				h.done = true
 				bones += 2
+				sniffs_done += 1
 				float_text(h.pos, "good sniff +2", Color(1, 0.95, 0.7))
 				_update_hud()
 	for k in kebabs:
 		if not k.eaten and dog.global_position.distance_to(k.pos) < 26.0:
 			k.eaten = true
 			bones += 1
+			kebabs_eaten += 1
 			float_text(k.pos, "snack +1", Color(1, 0.95, 0.7))
 			_update_hud()
 
@@ -752,20 +817,25 @@ func _check_win() -> void:
 		frozen = true
 		dim.visible = true
 		msg_label.visible = true
-		var bagged: bool = poop_state == 2 and not bag_pending
-		var q1 := ("[x]" if phone_hp == 3 else "[ ]") + "  phone without a scratch"
-		var q2 := ("[x]" if mark_quest_done else "[ ]") + "  territory secured (5 marks)"
-		var q3 := ("[x]" if bagged else "[ ]") + "  business done and bagged"
-		var stars := 1
-		if phone_hp == 3:
-			stars += 1
-		if mark_quest_done and bagged:
-			stars += 1
+		var completed := 0
+		var qtext := ""
+		for q in active_quests:
+			var done: bool = int(q.fn.call()) >= int(q.target)
+			if done:
+				completed += 1
+			qtext += ("[x]  " if done else "[ ]  ") + _quest_text(q) + "\n"
+		bones += completed * 5
 		var rating := ""
-		for i in range(stars):
-			rating += "GOOD DOG. "
-		msg_label.text = "WALK COMPLETE\n\n%s\n%s\n%s\n\nBones: %d    Phone: %d/3    Time: %ds\n\n%s\n\nPress R for another walk" % [
-			q1, q2, q3, bones, phone_hp, int(elapsed), rating.strip_edges()]
+		if completed == 0:
+			rating = "...still a good dog."
+		else:
+			for i in range(completed):
+				rating += "GOOD DOG. "
+			rating = rating.strip_edges()
+			if completed == 3:
+				rating += "\nPERFECT WALK"
+		msg_label.text = "WALK COMPLETE\n\n%s\nQuests: +%d bones\n\nBones: %d    Phone: %d/3    Time: %ds\n\n%s\n\nPress R for another walk" % [
+			qtext, completed * 5, bones, phone_hp, int(elapsed), rating]
 
 
 func on_bark(pos: Vector2) -> void:
@@ -806,6 +876,7 @@ func on_stumble_save(pos: Vector2) -> void:
 	for b in get_tree().get_nodes_in_group("bikes"):
 		if b.global_position.distance_to(pos) < 170.0:
 			streak += 1
+			saves_done += 1
 			bones += streak
 			float_text(pos + Vector2(0, -30), "NICE SAVE +%d" % streak, Color(0.7, 1.0, 0.75))
 			_slowmo()
@@ -834,6 +905,7 @@ func crack_phone(pos: Vector2) -> void:
 
 func close_call(pos: Vector2) -> void:
 	bones += 1
+	close_calls += 1
 	float_text(pos, "close call +1", Color(0.75, 0.9, 1.0))
 	_update_hud()
 

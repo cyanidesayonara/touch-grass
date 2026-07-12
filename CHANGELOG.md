@@ -2,6 +2,18 @@
 
 Append-only session history, newest first.
 
+## 2026-07-12 — rotating per-walk quests
+
+- Every walk draws three objectives from a ten-quest pool (chase
+  squirrels, close calls, marks, sniffs, snacks, nice saves, fling the
+  owner, phone unscratched, paws clean, business bagged). Live checklist
+  on the HUD ("TODAY'S WALK"), "quest done!" pops mid-walk, +5 bones per
+  completed quest at the gate, and the GOOD DOG rating now counts
+  completed quests - all three earns PERFECT WALK, zero earns
+  "...still a good dog." (because every dog is).
+- Maintain-type quests (phone unscratched, paws clean) start checked and
+  can be LOST, which reads exactly as menacing as intended.
+
 ## 2026-07-12 — squirrels: the temptation that tugs at the dog
 
 - Squirrels lounge near the sidewalk edges and, most cruelly, on the far

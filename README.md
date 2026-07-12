@@ -56,6 +56,9 @@ mutt who squats like a lady.
 - Squirrels. A nearby squirrel pulls at you - literally, your paws drift
   toward it - and chasing one pays bones even though it always escapes
   at the last second. Bark to scare them off when duty calls.
+- Every walk draws three quests from a pool (top right of the HUD).
+  Completing them pays bones and raises your GOOD DOG rating at the
+  gate; all three is a PERFECT WALK.
 - The human owns the retractable leash. "click!" means they just changed
   its length on a whim — sometimes reeling you in against your will.
 - The human telegraphs every event with a speech bubble: "ring ring" stops,

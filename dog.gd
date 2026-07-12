@@ -105,6 +105,7 @@ func hit_by_rider(dir: Vector2) -> void:
 		return
 	tumble_t = 0.8
 	velocity = dir * 320.0
+	main.on_dog_hit()
 	main.float_text(global_position, "yipe!", Color(1, 0.8, 0.6))
 
 
@@ -116,6 +117,7 @@ func fall_in(center: Vector2) -> void:
 	hole_cd = 2.6
 	global_position = center
 	velocity = Vector2.ZERO
+	main.on_dog_hit()
 	main.float_text(center, "oof", Color(1, 0.85, 0.6))
 
 
