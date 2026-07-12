@@ -67,6 +67,9 @@ var stray_t := 0.0
 var mark_quest_done := false
 var bins: Array[Vector2] = []
 var bag_pending := false
+var bag_flights: Array[Dictionary] = []
+var cat_y := 0.0
+var flock_ys: Array[float] = []
 
 # per-walk counters feeding the rotating quests
 var squirrels_chased := 0
@@ -187,6 +190,10 @@ func _build_level_data() -> void:
 	benches = [Vector2(376, -1300), Vector2(904, -2450), Vector2(376, -3850)]
 	cellars = [Rect2(340, -2750, 62, 88), Rect2(878, -750, 62, 82), Rect2(340, -4550, 62, 88)]
 	urge_y = randf_range(-3200.0, -1500.0)
+	# rare visitors: a cat some walks, a pigeon flock or two most walks
+	if randf() < 0.3:
+		cat_y = randf_range(-4200.0, -1200.0)
+	flock_ys = [randf_range(-1800.0, -800.0), randf_range(-4400.0, -2600.0)]
 	manholes = [
 		Vector2(560, -700), Vector2(760, -950), Vector2(480, -1700),
 		Vector2(700, -2100), Vector2(600, -3100), Vector2(820, -3450),
@@ -395,6 +402,13 @@ func _physics_process(delta: float) -> void:
 	_hazards(delta)
 	_pickups(delta)
 	_bodily(delta)
+	for i in range(bag_flights.size() - 1, -1, -1):
+		var f: Dictionary = bag_flights[i]
+		f.t += delta / 0.45
+		if f.t >= 1.0:
+			var to: Vector2 = f.to
+			bag_flights.remove_at(i)
+			on_business_bagged(to)
 	_check_win()
 	shake_t = maxf(0.0, shake_t - delta * 2.5)
 
@@ -591,6 +605,24 @@ func _vlane(delta: float) -> void:
 
 
 func _squirrels(delta: float) -> void:
+	# rare visitors arrive when the camera approaches their spot
+	if cat_y < 0.0 and cam.position.y < cat_y + 700.0:
+		var c := Node2D.new()
+		c.set_script(load("res://squirrel.gd"))
+		c.position = Vector2(376.0 if randf() < 0.5 else 904.0, cat_y)
+		c.z_index = 9
+		add_child(c)
+		c.setup(self, dog, "cat")
+		cat_y = 0.0
+	while flock_ys.size() > 0 and cam.position.y < flock_ys[0] + 650.0:
+		var fy: float = flock_ys.pop_front()
+		for i in range(5):
+			var p := Node2D.new()
+			p.set_script(load("res://pigeon.gd"))
+			p.position = Vector2(randf_range(480.0, 820.0), fy + randf_range(-40.0, 40.0))
+			p.z_index = 8
+			add_child(p)
+			p.setup(self, dog, human)
 	sq_spawn_t -= delta
 	if sq_spawn_t > 0.0:
 		return
@@ -618,29 +650,38 @@ func _squirrels(delta: float) -> void:
 
 
 func _temptation(delta: float) -> void:
-	# a nearby squirrel physically pulls at Millie; fight it or lean in
+	# a nearby critter physically pulls at Millie; fight it or lean in.
+	# Cats pull harder and from farther away, as cats do.
 	dog.tempted = false
 	if dog.planted or dog.is_tumbling() or dog.peeing:
 		return
-	var best_d := 220.0
-	var best := Vector2(INF, INF)
+	var best_s: Node2D = null
+	var best_d := 1e9
+	var best_rng := 0.0
 	for s in get_tree().get_nodes_in_group("squirrels"):
 		if s.state == 2:
 			continue
+		var rng: float = 300.0 if s.kind == "cat" else 220.0
 		var d: float = dog.global_position.distance_to(s.global_position)
-		if d < best_d:
+		if d < rng and d < best_d:
 			best_d = d
-			best = s.global_position
-	if best.x < INF:
+			best_s = s
+			best_rng = rng
+	if best_s != null:
 		dog.tempted = true
-		var pull := (best - dog.global_position).normalized() * 320.0 * (1.0 - best_d / 220.0)
+		var strength: float = 430.0 if best_s.kind == "cat" else 320.0
+		var pull := (best_s.global_position - dog.global_position).normalized() * strength * (1.0 - best_d / best_rng)
 		dog.velocity += pull * delta
 
 
-func on_squirrel_chase(pos: Vector2) -> void:
-	bones += 2
+func on_critter_chase(pos: Vector2, kind: String) -> void:
 	squirrels_chased += 1
-	float_text(pos, "almost got it! +2", Color(1, 0.95, 0.7))
+	if kind == "cat":
+		bones += 4
+		float_text(pos, "the cat got away +4", Color(1, 0.95, 0.7))
+	else:
+		bones += 2
+		float_text(pos, "almost got it! +2", Color(1, 0.95, 0.7))
 	_update_hud()
 
 
@@ -747,9 +788,12 @@ func _bodily(delta: float) -> void:
 		2:
 			# the owner's chore chain: walk to it, bag it, find a bin.
 			# Falls and whirls interrupt; they resume when back on
-			# their feet
+			# their feet - with the bag, if they already picked it up
 			if bag_pending and human.is_available_for_chore():
-				human.fetch_poop(business_spot)
+				if human.carrying_bag:
+					human.resume_to_bin(nearest_bin(human.global_position))
+				elif business_spot.x < INF:
+					human.fetch_poop(business_spot)
 		3:
 			urge_timer -= delta
 			if urge_timer <= 0.0:
@@ -785,11 +829,19 @@ func nearest_bin(pos: Vector2) -> Vector2:
 	return best
 
 
-func on_business_bagged() -> void:
-	bag_pending = false
+func on_business_picked() -> void:
+	# the poop leaves the sidewalk the moment it is bagged, not at the bin
 	business_spot = Vector2(INF, INF)
+
+
+func toss_bag(from: Vector2, to: Vector2) -> void:
+	bag_flights.append({"t": 0.0, "from": from, "to": to})
+
+
+func on_business_bagged(pos: Vector2) -> void:
+	bag_pending = false
 	bones += 2
-	float_text(human.global_position, "responsible +2", Color(0.8, 1.0, 0.8))
+	float_text(pos, "swish! responsible +2", Color(0.8, 1.0, 0.8))
 	_update_hud()
 
 
@@ -844,6 +896,9 @@ func on_bark(pos: Vector2) -> void:
 	for s in get_tree().get_nodes_in_group("squirrels"):
 		if s.global_position.distance_to(pos) < 200.0:
 			s.scare()
+	for p in get_tree().get_nodes_in_group("pigeons"):
+		if p.global_position.distance_to(pos) < 200.0:
+			p.scare()
 
 
 func set_leash_target(v: float) -> void:
@@ -1027,7 +1082,15 @@ func _draw() -> void:
 		draw_circle(pd, 7.5, pud)
 		draw_circle(pd + Vector2(6, 3), 4.5, pud)
 	if business_spot.x < INF:
-		draw_circle(business_spot, 3.0, Color(0.35, 0.25, 0.15))
+		# soft-serve, cartoon rules, nothing gross
+		var pcol := Color(0.36, 0.26, 0.16)
+		draw_circle(business_spot, 4.5, pcol)
+		draw_circle(business_spot + Vector2(0, -3), 3.2, pcol.lightened(0.08))
+		draw_circle(business_spot + Vector2(1, -5.5), 1.8, pcol.lightened(0.16))
+	for f in bag_flights:
+		var e: float = f.t
+		var bp: Vector2 = f.from.lerp(f.to, e) + (f.to - f.from).orthogonal().normalized() * sin(e * PI) * 26.0
+		draw_circle(bp, 4.0 + sin(e * PI) * 2.0, Color(0.92, 0.92, 0.95))
 	if mark_target.x < INF and mark_progress > 0.0:
 		draw_arc(mark_target, 17.0, -PI / 2.0, -PI / 2.0 + TAU * mark_progress / 0.7, 20, Color(1, 0.95, 0.6), 3.0)
 	# park gate

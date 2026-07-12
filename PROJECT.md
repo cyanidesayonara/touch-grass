@@ -114,6 +114,12 @@ poles, water, dropped food). Production picks the best ~15; new ideas
 get appended, not squeezed in. Multiple settings imply a main menu /
 walk-select screen (Phase 2 item).
 
+Content tiers per setting (the walk-variety pattern): COMMONS every run
+(traffic, bins, hydrants, squirrels), RARES some runs (the cat, pigeon
+flocks, setting-appropriate visitors), and ONE UNIQUE signature per
+setting. Every level should be packed; rarity is what makes runs
+memorable.
+
 1. **Quiet suburb** (tutorial) — sprinklers, garbage bins, one lone cyclist
 2. **Busy city sidewalk** — crowds of fellow phone zombies, deliveries, cafe terraces
 3. **Bike-lane boulevard** — marked bike lane running PARALLEL to the

@@ -3,7 +3,7 @@ extends CharacterBody2D
 # The human. Dead weight with a phone. Walks north on autopilot,
 # occasionally does something stupid. Telegraphs it first, to be fair.
 
-enum HState { WALK, STOPPED, DRIFT, DASH, SELFIE, FILM, WHIRL, GO_POOP, BAG, GO_BIN, STUMBLE, FALLEN }
+enum HState { WALK, STOPPED, DRIFT, DASH, SELFIE, FILM, WHIRL, GO_POOP, BAG, GO_BIN, TOSS, STUMBLE, FALLEN }
 
 const WALK_SPEED := 92.0
 
@@ -120,20 +120,29 @@ func tick(delta: float) -> void:
 			velocity = Vector2.ZERO
 			if state_t <= 0.0:
 				carrying_bag = true
+				main.on_business_picked()
 				chain_target = main.nearest_bin(global_position)
 				state = HState.GO_BIN
 				_show_bubble("where's a bin...")
 		HState.GO_BIN:
 			var to_bin := chain_target - global_position
-			if to_bin.length() < 34.0:
-				carrying_bag = false
-				state = HState.STOPPED
-				state_t = 0.7
-				bubble.visible = false
-				main.on_business_bagged()
+			if to_bin.length() < 70.0:
+				state = HState.TOSS
+				state_t = 0.55
+				velocity = Vector2.ZERO
+				face_dir = to_bin.normalized()
+				_show_bubble("toss...")
 			else:
 				velocity = velocity.move_toward(to_bin.normalized() * 120.0, 300.0 * delta)
 				move_and_slide()
+		HState.TOSS:
+			velocity = Vector2.ZERO
+			if state_t <= 0.0:
+				carrying_bag = false
+				bubble.visible = false
+				main.toss_bag(global_position + face_dir * 14.0, chain_target)
+				state = HState.STOPPED
+				state_t = 0.8
 		HState.WHIRL:
 			# cartoon tetherball: choreographed accelerating orbit that
 			# runs for exactly as many turns as the rope was wound (the
@@ -370,12 +379,22 @@ func is_available_for_chore() -> bool:
 
 
 func fetch_poop(spot: Vector2) -> void:
-	if state in [HState.FALLEN, HState.WHIRL, HState.GO_POOP, HState.BAG, HState.GO_BIN]:
+	if state in [HState.FALLEN, HState.WHIRL, HState.GO_POOP, HState.BAG, HState.GO_BIN, HState.TOSS]:
 		return
 	state = HState.GO_POOP
 	chain_target = spot
 	telegraph_t = 0.0
 	_show_bubble("ugh, hold on")
+
+
+func resume_to_bin(bin: Vector2) -> void:
+	# chain interrupted while already carrying the bag: head for a bin
+	if state in [HState.FALLEN, HState.WHIRL, HState.GO_BIN, HState.TOSS]:
+		return
+	state = HState.GO_BIN
+	chain_target = bin
+	telegraph_t = 0.0
+	_show_bubble("where's a bin...")
 
 
 func bumped(dir: Vector2) -> void:

@@ -2,6 +2,22 @@
 
 Append-only session history, newest first.
 
+## 2026-07-12 — chore chain polish, rare visitors
+
+- The poop leaves the sidewalk when the owner BAGS it, not when they
+  reach the bin (playtest bug). It also looks the cartoon part now
+  (soft-serve stack, nothing gross), and the delivery got an animation:
+  the owner stops short of the bin, winds up ("toss..."), and lobs the
+  bag in a curving arc - "swish! responsible +2" on the bucket. If the
+  chain breaks while they are already carrying the bag, they resume
+  toward a bin instead of going back for nothing.
+- Rare visitors, the start of the commons/rares/unique content pattern:
+  a CAT appears on ~30% of walks - pulls at Millie harder and from
+  farther than any squirrel, stands its ground until nearly touched,
+  +4 when chased ("the cat got away"). Pigeon flocks (1-2 per walk)
+  waddle around the sidewalk and scatter when anyone gets close; barking
+  scatters them too, obviously.
+
 ## 2026-07-12 — rotating per-walk quests
 
 - Every walk draws three objectives from a ten-quest pool (chase
