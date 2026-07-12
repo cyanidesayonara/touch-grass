@@ -215,9 +215,11 @@ func _walk(delta: float) -> void:
 		return
 	var t := Time.get_ticks_msec() / 1000.0
 	var speed := WALK_SPEED
-	var tx := 640.0 + sin(t * 0.35 + wobble_seed) * 110.0
+	var cx: float = main.walk_cx
+	var half: float = main.walk_half
+	var tx := cx + sin(t * 0.35 + wobble_seed) * minf(110.0, half - 60.0)
 	if state == HState.DRIFT:
-		tx = 640.0 + drift_dir * 260.0
+		tx = cx + drift_dir * (half - 70.0)
 		speed = 72.0
 		if state_t <= 0.0:
 			state = HState.WALK
@@ -292,6 +294,8 @@ func _fire_event() -> void:
 			state_t = randf_range(1.6, 2.4)
 			_show_bubble("filming...")
 		HState.DASH:
+			var lo: float = main.walk_cx - main.walk_half + 40.0
+			var hi: float = main.walk_cx + main.walk_half - 40.0
 			if pending_bench:
 				var b = main.nearest_bench(global_position)
 				if b == null:
@@ -300,7 +304,6 @@ func _fire_event() -> void:
 					return
 				sit_after_dash = true
 				dash_target = b as Vector2
-				dash_target.x = clampf(dash_target.x, 372.0, 908.0)
 				state = HState.DASH
 				state_t = 2.2
 			else:
@@ -308,7 +311,7 @@ func _fire_event() -> void:
 				state_t = 1.2
 				var off := Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, -0.3)).normalized() * randf_range(130.0, 210.0)
 				dash_target = global_position + off
-				dash_target.x = clampf(dash_target.x, 375.0, 905.0)
+				dash_target.x = clampf(dash_target.x, lo, hi)
 
 
 func _end_dash() -> void:
@@ -385,6 +388,18 @@ func fetch_poop(spot: Vector2) -> void:
 	chain_target = spot
 	telegraph_t = 0.0
 	_show_bubble("ugh, hold on")
+
+
+func show_nag() -> void:
+	# opinions about where dogs belong, delivered without looking up
+	if state != HState.WALK or telegraph_t > 0.0:
+		return
+	_show_bubble("come on!")
+	var tw := create_tween()
+	tw.tween_interval(1.0)
+	tw.tween_callback(func() -> void:
+		if telegraph_t <= 0.0:
+			bubble.visible = false)
 
 
 func resume_to_bin(bin: Vector2) -> void:

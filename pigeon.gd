@@ -8,16 +8,18 @@ var main: Node2D
 var dog: Node2D
 var human: Node2D
 var flying := false
+var gull := false
 var fly_dir := Vector2.UP
 var wander_t := 0.0
 var seed_o := 0.0
 
 
-func setup(m: Node2D, d: Node2D, h: Node2D) -> void:
+func setup(m: Node2D, d: Node2D, h: Node2D, is_gull: bool = false) -> void:
 	add_to_group("pigeons")
 	main = m
 	dog = d
 	human = h
+	gull = is_gull
 	seed_o = randf() * 10.0
 
 
@@ -55,12 +57,15 @@ func scare() -> void:
 
 
 func _draw() -> void:
-	var grey := Color(0.55, 0.56, 0.6)
-	draw_circle(Vector2.ZERO, 4.0, grey)
-	draw_circle(Vector2(3, -2), 2.2, grey.darkened(0.15))
-	draw_circle(Vector2(4.6, -2), 0.8, Color(0.9, 0.6, 0.2))
+	var body := Color(0.88, 0.88, 0.9) if gull else Color(0.55, 0.56, 0.6)
+	var r := 5.2 if gull else 4.0
+	draw_circle(Vector2.ZERO, r, body)
+	draw_circle(Vector2(r - 1.0, -2), r * 0.55, body)
+	draw_circle(Vector2(r + 0.6, -2), 1.0, Color(0.9, 0.6, 0.2))
+	if gull:
+		draw_line(Vector2(-r, -1), Vector2(-r - 3.0, 0), Color(0.4, 0.4, 0.45), 2.0)
 	if flying:
 		var t := Time.get_ticks_msec() / 1000.0
 		var flap := sin(t * 24.0 + seed_o) * 4.0
-		draw_line(Vector2(-2, 0), Vector2(-6, -3 - flap), grey.darkened(0.1), 2.0)
-		draw_line(Vector2(2, 0), Vector2(6, -3 - flap), grey.darkened(0.1), 2.0)
+		draw_line(Vector2(-2, 0), Vector2(-7, -3 - flap), body.darkened(0.1), 2.0)
+		draw_line(Vector2(2, 0), Vector2(7, -3 - flap), body.darkened(0.1), 2.0)

@@ -2,8 +2,8 @@ extends Node
 
 # Autoload: session state that must survive scene reloads.
 
-const LEVELS: Array[String] = ["street", "park"]
-const LEVEL_NAMES := {"street": "The Boulevard", "park": "The Park"}
+const LEVELS: Array[String] = ["street", "park", "beach"]
+const LEVEL_NAMES := {"street": "The Boulevard", "park": "The Park", "beach": "Passeig Maritim"}
 
 var level_id := "street"
 

@@ -2,6 +2,23 @@
 
 Append-only session history, newest first.
 
+## 2026-07-12 — PASSEIG MARITIM (level three), free roaming
+
+- Level three, modeled on the family's real daily walk in Badalona: sea
+  with rolling foam, sand with towels and sunbathers (step on a towel:
+  "hey!"), parasols (poles with ambition: windable, markable), a wooden
+  boardwalk, the little bike path, the pavement where the owner walks,
+  and palm trees plus canopied cafe terraces on the far side. Seagulls
+  instead of pigeons. Sand slows the dog down; it is worth it.
+- The dog roams free now: walls moved to the LEVEL edges on every walk,
+  so grass, sand, and shoulders are all Millie's. The human stays on
+  the walkway by inclination, not invisible fences - and an undistracted
+  owner eventually tuts "come on!" and reels the leash in a notch when
+  the dog lingers off-path. Corridors widened throughout; the human's
+  autopilot band is now per-level data.
+- CI smoke-tests all three levels. PROJECT.md gains the future-systems
+  note for other dog+owner pairs with leash tangling.
+
 ## 2026-07-12 — THE PARK (level two), level select, Millie for real
 
 - Second level: The Park. Dirt path instead of sidewalk, trees instead

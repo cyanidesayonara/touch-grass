@@ -161,6 +161,14 @@ memorable.
 20. **Christmas market** — mulled-wine crowds, ice patches, sausage
     stands, the tree lot (a forest of windable poles), fairy-light cables
 
+## Future systems (noted, not scheduled)
+
+- Other dog+owner pairs sharing the walk: two leash ropes that can
+  TANGLE with each other, knotting both parties into a four-body
+  physics argument. The rope is already a self-contained component;
+  the tangle is rope-vs-rope collision plus a lot of playtesting.
+  Likely the flagship mechanic of the dog park setting.
+
 ## Process
 
 Evenings/weekends project alongside job hunt. One mechanic or task per
