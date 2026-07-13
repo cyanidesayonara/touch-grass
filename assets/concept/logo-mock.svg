@@ -53,8 +53,7 @@
   </g>
 
   <!-- title lettering -->
-  <text x="80" y="428" font-size="58" fill="#2c2a26" letter-spacing="2" font-weight="bold">PATH OF</text>
-  <text x="330" y="428" font-size="58" fill="#b8402e" letter-spacing="2" font-weight="bold">LEASH</text>
+  <text x="80" y="428" font-size="58" fill="#2c2a26" letter-spacing="2" font-weight="bold">PATH OF <tspan fill="#b8402e">LEASH</tspan></text>
   <text x="80" y="478" font-size="58" fill="#2c2a26" letter-spacing="2" font-weight="bold">RESISTANCE</text>
   <!-- leash underline continuing from the R into a collar ring -->
   <path d="M 480 462 q 160 26 330 -6" fill="none" stroke="#b8402e" stroke-width="6" stroke-linecap="round"/>

@@ -2,6 +2,21 @@
 
 Append-only session history, newest first.
 
+## 2026-07-12 — two tiers of danger, repo renamed
+
+- Repo and folder renamed to path-of-leash-resistance for the fresh
+  start (itch page already updated by Santtu).
+- Danger now has two honest tiers. Bumps (kids, towels, cones) hurt a
+  little; bikes crack the phone; but OPEN HOLES END THE WALK - dog or
+  owner going down a manhole or cellar is game over, with an epitaph.
+  The pond stays mid-tier (wet, embarrassing, survivable).
+- Manholes are guarded by FOUR cones each (cellars two), and cones
+  punted into a manhole, cellar, or pond disappear with a "plop" - so
+  you can strip a hole of its warnings and then live with what you did.
+- Fixed two A-stands that had been placed INSIDE crossing lanes (the
+  mystery "grate in the bike path" that the leash kept wrapping).
+- Logo mock: fixed overlapping title lettering (the OEEASH incident).
+
 ## 2026-07-12 — retitled PATH OF LEASH RESISTANCE, the liveliness pass
 
 - The game is now PATH OF LEASH RESISTANCE ("Touch Grass" is a

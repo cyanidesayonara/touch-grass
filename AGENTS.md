@@ -9,8 +9,8 @@ this project. It follows the AGENTS.md open standard (https://agents.md).
 is a top-down physics comedy game. You are a dog leashed to a
 phone-distracted human who walks on autopilot. Get them through the walk
 with their phone intact while sneaking in as much dog business as
-possible. (The repo slug stays touch-grass; the game was retitled in
-July 2026 after a trademark collision.)
+possible. (Retitled from Touch Grass in July 2026 after a trademark
+collision; repo renamed to match.)
 
 Core design pillars, roadmap, and open questions live in `PROJECT.md`. Read it
 before proposing features.

@@ -3,7 +3,7 @@
 *You are the dog. Go touch grass.*
 
 (Retitled July 2026: "Touch Grass" is an existing trademarked Steam game;
-the old tagline was better as a title anyway. The repo keeps its slug.)
+the old tagline was better as a title anyway.)
 
 A top-down physics comedy game. You are the dog. Your human is glued to
 their phone and walking on autopilot. Get them through the walk with the

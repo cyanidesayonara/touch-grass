@@ -223,7 +223,8 @@ func _build_level_data() -> void:
 				Vector2(736, -3745), Vector2(670, -3672), Vector2(815, -3820),
 			]
 			parasols = [Vector2(775, -3610), Vector2(745, -3745)]
-			astands = [Vector2(365, -1150), Vector2(915, -2850), Vector2(370, -4050)]
+			# off the crossing lanes, by the shopfronts where they belong
+			astands = [Vector2(365, -1600), Vector2(915, -2850), Vector2(372, -4330)]
 			# a delivery van parked half on the walkway, as they do
 			vans = [Vector2(890, -3050)]
 			performers = [Vector2(400, -1550)]
@@ -474,10 +475,13 @@ func _spawn_cones() -> void:
 	var spots: Array[Vector2] = []
 	spots.append_array(cone_spots)
 	for m in manholes:
-		spots.append(m + Vector2(30, -16))
-		spots.append(m + Vector2(-26, 20))
+		spots.append(m + Vector2(32, -18))
+		spots.append(m + Vector2(-30, 22))
+		spots.append(m + Vector2(26, 28))
+		spots.append(m + Vector2(-26, -26))
 	for c in cellars:
 		spots.append(Vector2(c.end.x + 14, c.position.y + 24))
+		spots.append(Vector2(c.position.x - 12, c.end.y - 10))
 	for s in spots:
 		var cn := Node2D.new()
 		cn.set_script(load("res://cone.gd"))
@@ -959,6 +963,13 @@ func _offpath(delta: float) -> void:
 		offpath_t = maxf(0.0, offpath_t - delta)
 
 
+func _death(msg: String) -> void:
+	frozen = true
+	dim.visible = true
+	msg_label.visible = true
+	msg_label.text = msg + "\n\nPress R to try again"
+
+
 func _hazards(delta: float) -> void:
 	for tw in towels:
 		tw.cd = maxf(0.0, float(tw.cd) - delta)
@@ -967,7 +978,8 @@ func _hazards(delta: float) -> void:
 			human.bumped((human.global_position - (tw.rect as Rect2).get_center()).normalized())
 			float_text(human.global_position, "hey! my towel!", Color(1, 0.85, 0.7))
 	if pond.size.x > 0.0:
-		# phones and ponds are natural enemies
+		# phones and ponds are natural enemies (wet, embarrassing,
+		# survivable - the pond is the middle tier of danger)
 		if pond.has_point(human.global_position):
 			if human.fall("pond"):
 				float_text(human.global_position, "SPLASH", Color(0.6, 0.8, 1.0))
@@ -975,16 +987,22 @@ func _hazards(delta: float) -> void:
 		if dog.hole_cd <= 0.0 and pond.has_point(dog.global_position):
 			float_text(dog.global_position, "SPLASH", Color(0.6, 0.8, 1.0))
 			dog.fall_in(Vector2(pond.end.x + 26.0, dog.global_position.y))
+	# open holes are the TOP tier of danger: falling in ends the walk,
+	# full stop. Bumps hurt a little; holes hurt completely.
 	for m in manholes:
-		if human.global_position.distance_to(m) < 26.0:
-			human.fall("manhole")
-		if dog.hole_cd <= 0.0 and dog.global_position.distance_to(m) < 20.0:
-			dog.fall_in(m)
+		if human.global_position.distance_to(m) < 24.0 and not human.is_fallen():
+			_death("THE HUMAN WENT DOWN THE MANHOLE\n\nThe phone gets reception down there. The walk does not.")
+			return
+		if dog.global_position.distance_to(m) < 20.0:
+			_death("MILLIE WENT DOWN THE MANHOLE\n\nShe is fine. The walk is very over.")
+			return
 	for c in cellars:
 		if c.has_point(human.global_position):
-			human.fall("cellar")
-		if dog.hole_cd <= 0.0 and c.has_point(dog.global_position):
-			dog.fall_in(c.get_center())
+			_death("THE HUMAN FELL INTO THE CELLAR\n\nRight onto the delivery. The walk is over.")
+			return
+		if c.has_point(dog.global_position):
+			_death("MILLIE FELL INTO THE CELLAR\n\nShe found the sausages. The walk is still over.")
+			return
 
 
 func _pickups(delta: float) -> void:
