@@ -82,6 +82,9 @@ jobs:
       - name: Sweeper chase devourer regression test
         run: ./Godot_v4.7-stable_linux.x86_64 --headless --path . --script res://tests/test_sweeper.gd
 
+      - name: Combo challenge regression test
+        run: ./Godot_v4.7-stable_linux.x86_64 --headless --path . --script res://tests/test_challenge.gd
+
       - name: Human appearance regression test
         run: LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a --server-args="-screen 0 1280x1024x24" ./Godot_v4.7-stable_linux.x86_64 --rendering-method gl_compatibility --path . --script res://tests/test_human_appearance.gd
 

@@ -2,6 +2,22 @@
 
 Append-only session history, newest first.
 
+## 2026-07-18 — v1.11: combo challenge (Tony Hawk Phase B)
+
+- A show-off kid lounging on a bench on the walk out dares you into a
+  combo CHALLENGE: land N tricks inside a bounded window ("5 tricks -
+  GO!"). Any scored action counts (sniff, mark, say-hi, fetch, boop,
+  tangle, fling, save, close call - the same events that feed the combo
+  meter).
+- The walk stays time-free; only the challenge has a clock, shown as a
+  top-centre banner ("COMBO CHALLENGE 3/5 tricks 8s") that warms to red
+  as it closes. Hit the target and it pays out bones + a slow-mo flourish
+  and the kid cheers; run out of time and it just shrugs - no penalty.
+- One dare per walk. Built as a self-contained challenge module + a giver
+  node, both kept off the global RNG so the deterministic autowalk stays
+  in sync. New regression test; CI runs it, and the attract bot trips the
+  dare on every traversal.
+
 ## 2026-07-18 — v1.10: Rainy Day + other owners throw + daily card
 
 - New walk: El Aguacero, a permanent downpour (gate 5). Slick pavement,

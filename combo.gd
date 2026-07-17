@@ -39,6 +39,9 @@ func add(label: String, pts: int) -> void:
 	if names.is_empty() or names[names.size() - 1] != label:
 		names.append(label)
 	timer = WINDOW
+	# every trick also feeds an active combo challenge, if one is running
+	if main != null and main.has_method("on_trick"):
+		main.on_trick()
 
 
 func bail() -> void:

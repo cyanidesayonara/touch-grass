@@ -78,7 +78,11 @@ Every feature must serve at least one. If it serves none, cut it.
   ball for "shared! +4"), and a shareable daily results card. Follow-ups
   noted in Future systems (bespoke rain geometry; NPC dogs fetching
   their own thrown ball).
-- **v1.11 - Level six (Old Town) + polish.** Narrow alleys, stairs, wall
+- **v1.11 - shipped.** Combo challenge (Tony Hawk Phase B): a bystander
+  dares you into a bounded trick window on the walk out; hit the target
+  for bones + slow-mo, no penalty for missing. Combo system now complete
+  (Phase A meter + Phase B challenge).
+- **v1.12 - Level six (Old Town) + polish.** Narrow alleys, stairs, wall
   cats, laundry lines. Mechanics tuning from playtests.
 - **v2.0 - The Product.** Watercolor art integration, sound and music
   pass, trademark verification, Steam page, Next Fest demo.
@@ -251,12 +255,12 @@ memorable.
   grab) until she reaches home. A repeating goal on every level.
 - Combo / multiplier system (Tony Hawk lineage). Phase A SHIPPED v1.8:
   scored actions chain into a multiplier that banks style points + a
-  bones bonus; taking a hit bails the chain. Phase B still to come - a
-  triggered combo CHALLENGE handed out by a character/event (a punk kid
-  on a bench, a squirrel dare): a bounded window with a target ("tangle
-  3 walkers in one go"), optional, self-contained, and time-free so it
-  never fights the no-timer walk. A "land a x8 combo" per-level goal
-  would tie the meter into progression once it has been playtested.
+  bones bonus; taking a hit bails the chain. Phase B SHIPPED v1.11: a
+  bystander dares you into a bounded trick window on the walk out; hit
+  the target for bones + slow-mo, miss for nothing. Follow-ups: vary the
+  dare per giver/level (a "tangle N walkers" variant, a squirrel dare),
+  and a "land a x8 combo" / "beat the challenge" per-level goal to tie
+  both into progression once playtested.
 - Chase / outrun mechanic (homage to Crash Bandicoot's boulder runs and
   Indiana Jones): something CONSUMES the path behind you and you have to
   keep ahead of it. First cut SHIPPED v1.9 as a short home-leg chase

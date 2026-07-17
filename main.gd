@@ -214,6 +214,10 @@ var prompt_tw: Tween
 var quests_label: Label
 var msg_label: Label
 var combo: Node
+var challenge: Node
+var challenge_l: Label
+var challenge_giver: Node2D
+var challenge_offered := false
 var dog_carrying := false
 # a neighbour's ball: a parked NPC owner throws one you can intercept and
 # return to them for a shared-fetch bonus
@@ -255,6 +259,7 @@ func _ready() -> void:
 	_spawn_cones()
 	_build_quests()
 	_build_hud()
+	_spawn_challenger()
 	# day/night + weather: a canvas tint; HUD lives on a CanvasLayer,
 	# unaffected
 	night_cm = CanvasModulate.new()
@@ -905,7 +910,7 @@ func _build_hud() -> void:
 	record_l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	record_l.modulate.a = 0.85
 	var version_l := _hud_label(Vector2(1150, 686), 13)
-	version_l.text = "v1.10"
+	version_l.text = "v1.11"
 	version_l.modulate.a = 0.5
 	owner_l = _hud_label(Vector2(0, 296), 26)
 	owner_l.size = Vector2(1280, 34)
@@ -985,6 +990,15 @@ func _build_hud() -> void:
 	combo_l.size = Vector2(1280, 34)
 	combo_l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	combo_l.visible = false
+	# the combo challenge (Phase B): a bounded trick dare from a bystander
+	challenge = Node.new()
+	challenge.set_script(load("res://challenge.gd"))
+	add_child(challenge)
+	challenge.setup(self)
+	challenge_l = _hud_label(Vector2(0, 70), 24)
+	challenge_l.size = Vector2(1280, 30)
+	challenge_l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	challenge_l.visible = false
 	dim = ColorRect.new()
 	dim.color = Color(0, 0, 0, 0.55)
 	dim.size = Vector2(1280, 720)
@@ -1225,6 +1239,42 @@ func on_combo_banked(score: int, mult: int, bonus: int) -> void:
 		_slowmo()
 
 
+func _update_challenge_hud() -> void:
+	var live: bool = challenge.active
+	challenge_l.visible = live
+	if not live:
+		return
+	challenge_l.text = "COMBO CHALLENGE   %d/%d tricks   %ds" % [
+		challenge.count, challenge.target, int(ceil(challenge.timer))]
+	challenge_l.modulate = Color(1, 0.95, 0.6) if challenge.fraction() > 0.3 else Color(1, 0.55, 0.4)
+
+
+func on_trick() -> void:
+	challenge.add_trick()
+
+
+func start_challenge(giver: Node2D, target: int, seconds: float) -> void:
+	if challenge_offered or challenge.active:
+		return
+	challenge_offered = true
+	challenge_giver = giver
+	challenge.begin(target, seconds)
+	shake_t = maxf(shake_t, 0.2)
+	float_text(dog.global_position + Vector2(0, -26), "%d TRICKS - GO!" % target, Color(1, 0.9, 0.5))
+
+
+func on_challenge_done(win: bool, target: int, count: int) -> void:
+	if is_instance_valid(challenge_giver):
+		challenge_giver.resolve(win)
+	if win:
+		var reward := 20 + target * 3
+		bones += reward
+		float_text(dog.global_position + Vector2(0, -30), "CHALLENGE! +%d" % reward, Color(0.8, 1.0, 0.85))
+		_slowmo()
+	else:
+		float_text(dog.global_position + Vector2(0, -30), "so close - %d/%d" % [count, target], Color(1, 0.8, 0.6))
+
+
 func _physics_process(delta: float) -> void:
 	if frozen:
 		return
@@ -1273,7 +1323,9 @@ func _physics_process(delta: float) -> void:
 	_check_goals()
 	_progress(delta)
 	combo.tick(delta)
+	challenge.tick(delta)
 	_update_combo_hud()
+	_update_challenge_hud()
 	shake_t = maxf(0.0, shake_t - delta * 2.5)
 	prize_glow += delta * 4.0
 
@@ -2289,6 +2341,17 @@ func _enter_freedom() -> void:
 		add_child(fd)
 		fd.setup(self, dog, freedom_lo, GATE_Y - 30.0)
 	float_text(dog.global_position, "OFF LEASH!  FETCH!", Color(0.8, 1.0, 0.8))
+
+
+func _spawn_challenger() -> void:
+	# one combo-challenge giver per walk, lounging on the out leg where you
+	# still have room and energy to show off
+	var giver := Node2D.new()
+	giver.set_script(load("res://challenger.gd"))
+	giver.position = Vector2(walk_cx + 170.0, -1600.0)
+	giver.z_index = 6
+	add_child(giver)
+	giver.setup(self, dog, 5, 12.0)
 
 
 func _neighbour_fetch() -> void:
