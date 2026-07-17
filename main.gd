@@ -107,6 +107,13 @@ var tofu_quest_active := false
 var tofu_home := false
 var freedom_lo := GATE_Y - 620.0
 const HOME_Y := 320.0
+# the "outrun the sweeper" chase: a slow devourer that grinds down the
+# corridor on the walk home. Slower than a pulling dog, faster than the
+# owner's dawdle - keep moving or it eats the oblivious owner.
+var chase_active := false
+var chase_sweeper: Node2D
+const CHASE_SPEED := 140.0
+const CHASE_START_GAP := 650.0
 # goals completed this run (ids), for scoring/toasts/results independent
 # of persistence; plus the star snapshot captured when the walk begins
 var run_goals_hit := {}
@@ -257,6 +264,14 @@ func _ready() -> void:
 		# so the full out->freedom->home->finish loop can be verified
 		dog.collision_mask = 0
 		human.collision_mask = 0
+	# a short chase can strike on the walk home. Forced with --chase (for
+	# testing and the CI attract run); otherwise a seeded chance on the
+	# campaign walks. It takes over the home leg, so it and the Tofu
+	# herding are mutually exclusive.
+	var chase_forced := "--chase" in OS.get_cmdline_user_args()
+	chase_active = chase_forced or (not auto_walk and not Game.daily and randf() < 0.25)
+	if chase_active:
+		tofu_quest_active = false
 	menu_step = Game.menu_step
 	_apply_menu_step()
 
@@ -858,7 +873,7 @@ func _build_hud() -> void:
 	record_l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	record_l.modulate.a = 0.85
 	var version_l := _hud_label(Vector2(1150, 686), 13)
-	version_l.text = "v1.8"
+	version_l.text = "v1.9"
 	version_l.modulate.a = 0.5
 	owner_l = _hud_label(Vector2(0, 296), 26)
 	owner_l.size = Vector2(1280, 34)
@@ -1115,7 +1130,9 @@ func _update_hud() -> void:
 		else:
 			hud_status = "FETCH!  bring it back  %d/%d   %ds left" % [romp_catches, romp_target, int(ceil(romp_timer))]
 	elif phase == "home":
-		if tofu_quest_active and not tofu_home:
+		if chase_active and chase_sweeper != null:
+			hud_status = "RUN!  keep the sweeper behind you - drag them along!"
+		elif tofu_quest_active and not tofu_home:
 			hud_status = "herd Tofu home - keep after her!"
 		else:
 			hud_status = "head home"
@@ -1218,6 +1235,8 @@ func _physics_process(delta: float) -> void:
 			on_business_bagged(to)
 	if phase == "freedom":
 		_romp(delta)
+	elif phase == "home" and chase_active:
+		_chase(delta)
 	_check_goals()
 	_progress(delta)
 	combo.tick(delta)
@@ -2303,7 +2322,34 @@ func _enter_home() -> void:
 		add_child(tf)
 		tf.setup(self, dog, spots)
 		float_text(spots[0], "Tofu!? she got out again - get her home!", Color(1, 0.85, 0.7))
-	float_text(dog.global_position, "let's go home", Color(1, 0.95, 0.7))
+	if chase_active:
+		chase_sweeper = Node2D.new()
+		chase_sweeper.set_script(load("res://sweeper.gd"))
+		chase_sweeper.z_index = 8
+		add_child(chase_sweeper)
+		chase_sweeper.setup(self, dog.global_position.y - CHASE_START_GAP, walk_cx, walk_half, CHASE_SPEED)
+		shake_t = 1.0
+		float_text(dog.global_position, "THE STREET SWEEPER! RUN!", Color(1, 0.6, 0.3))
+	else:
+		float_text(dog.global_position, "let's go home", Color(1, 0.95, 0.7))
+
+
+func _chase(delta: float) -> void:
+	if chase_sweeper == null:
+		return
+	chase_sweeper.advance(delta)
+	chase_sweeper.global_position = Vector2(walk_cx, chase_sweeper.front_y)
+	chase_sweeper.queue_redraw()
+	# a low rumble the closer it gets to the dog
+	var gap: float = chase_sweeper.gap_to(dog.global_position)
+	if gap < 260.0:
+		shake_t = maxf(shake_t, 0.25)
+	if auto_walk:
+		return  # the attract/CI bot carries an unsweepable dog
+	if chase_sweeper.caught(human.global_position):
+		_death("THE SWEEPER GOT YOUR HUMAN\n\nThey never once looked up from the phone.\nYou did try to tell them.")
+	elif chase_sweeper.caught(dog.global_position):
+		_death("SWEPT UP\n\nMillie disappeared into the brushes.\nSuspiciously clean about it, too.")
 
 
 func _finish_walk() -> void:

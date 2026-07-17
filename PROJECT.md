@@ -69,11 +69,15 @@ Every feature must serve at least one. If it serves none, cut it.
   scored actions chain into a multiplier that banks style points + bonus
   bones; a hit bails the chain. See Future systems for Phase B (the
   triggered combo challenge).
-- **v1.9 - other owners throw + Rainy Day + daily card.** Parked NPC
+- **v1.9 - shipped.** Outrun the street sweeper: a short chase that can
+  strike on the walk home (slow devourer, oblivious owner, drag the dead
+  weight to safety). The first cut of the chase mechanic; dedicated
+  chase levels and feel tuning still to come (see Future systems).
+- **v1.10 - other owners throw + Rainy Day + daily card.** Parked NPC
   owners throw balls for their dogs (return handler already scores
   "shared! +4"); a rainy-by-default level with storm drains and umbrella
   crowds; a shareable daily results card.
-- **v1.10 - Level six (Old Town) + polish.** Narrow alleys, stairs, wall
+- **v1.11 - Level six (Old Town) + polish.** Narrow alleys, stairs, wall
   cats, laundry lines. Mechanics tuning from playtests.
 - **v2.0 - The Product.** Watercolor art integration, sound and music
   pass, trademark verification, Steam page, Next Fest demo.
@@ -252,17 +256,29 @@ memorable.
   3 walkers in one go"), optional, self-contained, and time-free so it
   never fights the no-timer walk. A "land a x8 combo" per-level goal
   would tie the meter into progression once it has been playtested.
-- Chase / outrun level (homage to Crash Bandicoot's boulder runs and
-  Indiana Jones): a north->south leg where something is CONSUMING the
-  path behind you and you have to keep ahead of it. The street sweeper
-  is the perfect in-fiction devourer (big spinning brushes, already a
-  service vehicle in the world); alternates could be a runaway parade
-  float, a tide coming in on the beach, a snowplough in winter. Inverts
-  the usual owner-is-dead-weight dynamic: now the owner must HURRY, and
-  the leash tension becomes a drag you fight instead of a weapon you
-  wield. Its own failure mode (get caught = the sweeper eats you, soft
-  slapstick) rather than the usual soft-fail. Likely a signature level
-  or a special daily variant, not every walk.
+- Chase / outrun mechanic (homage to Crash Bandicoot's boulder runs and
+  Indiana Jones): something CONSUMES the path behind you and you have to
+  keep ahead of it. First cut SHIPPED v1.9 as a short home-leg chase
+  (the street sweeper). Two tiers going forward:
+    - DEDICATED chase levels designed around it, with their own quests
+      (survive, save the owner, grab X while fleeing, beat a ghost).
+    - SHORT in-level chases (shipped form) triggered by an in-world
+      cause - for now a seeded chance; better would be a real trigger
+      (you knock over a barrier, a siren starts, the tide turns).
+  The threat is a 2-axis grid - SPEED (slow/fast) x WHO IT SCARES (you /
+  the owner / both) - and mixing those gives distinct feels from one
+  mechanic:
+    - slow + scares only you (the sweeper, shipped): owner dawdles
+      oblivious, you drag the dead weight south. Owner-is-payload turned
+      lethal.
+    - fast + scares the owner (a blaring tow truck, a gull mob): the
+      owner bolts and drags YOU - the leash flips from tool to problem,
+      you're water-skiing behind a panicking human.
+    - both (fire truck, runaway float): a brief cooperative sprint, the
+      one time you and the owner want the same thing.
+  In-fiction devourers by setting: street sweeper (city), incoming tide
+  (beach), snowplough (winter), runaway parade float (festival). Own
+  failure mode (caught = eaten, soft slapstick), not the usual soft-fail.
 - Swimming (shipped v1.1 in the park pond, expandable): Millie loves
   water and paddles happily; the owner is dragged in to wade reluctantly
   with the phone held high; Tofu will not go near it. Beach sea and any

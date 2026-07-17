@@ -2,6 +2,23 @@
 
 Append-only session history, newest first.
 
+## 2026-07-17 — v1.9: outrun the street sweeper (short in-level chase)
+
+- A chase can now strike on the walk home (homage to Crash Bandicoot's
+  boulder runs): a street sweeper grinds down the corridor eating the
+  path behind you. It's slower than a pulling dog but faster than the
+  owner's phone-zombie dawdle, so it never scares the oblivious owner —
+  it's on YOU to drag the dead weight south ahead of the brushes.
+- Keep moving and you're fine; stop to sniff around (or milk a combo)
+  and the gap closes. Get caught — dog or owner — and the walk is over
+  (soft, silly game-over).
+- Triggered on ~1 in 4 campaign walk-homes for now (mutually exclusive
+  with the Tofu herding), or forced with the --chase flag. Tuning the
+  feel and building dedicated chase levels come next.
+- New self-contained sweeper module + regression test (advance, kill
+  line, dawdler-caught vs hustler-safe); CI runs the test and a forced
+  --chase full-walk traversal.
+
 ## 2026-07-17 — v1.8: combo / multiplier meter (Tony Hawk Phase A)
 
 - Every scored bit of dog business — sniff, mark, say-hi, snack, fetch,
