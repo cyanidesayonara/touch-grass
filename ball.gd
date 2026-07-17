@@ -62,8 +62,8 @@ func _physics_process(delta: float) -> void:
 				state = State.CARRIED
 				main.on_ball_grabbed()
 		State.CARRIED:
-			# ride at the dog's mouth
-			global_position = dog.global_position + dog.facing * 13.0
+			# ride at the dog's mouth (nose tip is ~facing*22 from centre)
+			global_position = dog.global_position + dog.facing * 22.0
 			if global_position.distance_to(thrower.global_position) < 42.0:
 				main.on_ball_returned(thrower)
 				_throw()
