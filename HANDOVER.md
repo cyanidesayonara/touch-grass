@@ -71,10 +71,12 @@ Godot 4.7 lives portably in `godot/` (gitignored). Key commands:
 - **CI source of truth:** `.github/workflows/ci.yml`. It runs focused rope,
   critter, tangle, freedom-traffic, pair-direction, bandana, owner-label,
   bypasser-route, rider-avoidance, pair-obstacle, pair-park-lifecycle,
-  park-slot, pair-park-traffic, free-dog visual-variety, and pair-dog
-  appearance regressions,
-  followed by all four smoke tests and deterministic autowalk. The suite runs
-  on every push to `main` and every pull request targeting `main`.
+  park-slot, pair-park-traffic, free-dog visual-variety, pair-dog appearance,
+  human-appearance, and pair-owner-appearance regressions, followed by all four
+  smoke tests and deterministic autowalk. The two owner-appearance tests run
+  under Xvfb with the real GL Compatibility renderer so their `SubViewport`
+  pixel readback is exercised; the other focused tests remain headless. The
+  suite runs on every push to `main` and every pull request targeting `main`.
 
 **Release ritual each version:** implement → run all automated tests → launch
 and perform the relevant manual acceptance → update `CHANGELOG.md` and the
@@ -106,6 +108,12 @@ are no production art assets yet.
   bounded transition movement, parked dog roaming, physical recall, re-leash,
   gate clearance, route resumption, and exactly-once slot release on clearance
   or tree exit. Main starts lifecycle events; `otherpair.gd` executes them.
+- `human_appearance.gd` — stateless reusable presentation boundary for generic
+  NPC owners: six stable profile IDs, defensive lookup and signed-key
+  selection, comprehensive validation, and one procedural renderer. It creates
+  no nodes, stores no runtime state, consumes no randomness, and has no
+  dependency on pair behavior, lifecycle, leashes, player-owner code, creator
+  UI, or save data.
 - `dog.gd` — Millie: movement, plant, pee, turbo, swimming, cosmetics, and
   `auto`/`auto_move` bot support.
 - `human.gd` — player owner payload: autopilot, telegraphed events, whirl,
@@ -117,6 +125,29 @@ are no production art assets yet.
   `cone.gd`, `astand.gd`, `ball.gd`, and `freedog.gd`.
 - Presentation/support: `weather_overlay.gd`, `touch_controls.gd`,
   `hud_panel.gd`; concept guides are under `assets/concept/`.
+
+### Reusable NPC owner appearance architecture
+
+`human_appearance.gd` exposes six persistence-facing IDs in stable order,
+defensive profile lookup, positive-modulo signed-key selection, comprehensive
+validation, and procedural owner drawing. The IDs are
+`compact_short_cap`, `tall_long_glasses`, `broad_bun_sunglasses`,
+`medium_bald_spot_glasses`, `narrow_short_beanie`, and `rounded_long_cap`.
+Their order, exact schema, and meaning are persistence-facing API for possible
+later creator reuse.
+
+`otherpair.gd` owns one `owner_appearance_profile` dictionary for the complete
+pair lifetime. Setup still consumes exactly velocity `randf_range`, animation
+phase `randf`, raw owner `randi`, and raw dog `randi` in that order.
+`owner_col` derives from the selected owner profile's `shirt_color`; the
+existing dog profile and `dog_col` flow is unchanged. Both procedural
+renderers draw on the pair parent while `npc_owner`, `npc_dog`, and `leash`
+remain the real persistent gameplay nodes and endpoints.
+
+No creator, selector, save, migration, unlock, progression, stat, or behavior
+feature is part of this implementation. Future creator work may consume the
+stable IDs, defensive profiles, validation, and renderer only through a
+separately approved design.
 
 **Performance constraint:** entities must not query scene-tree groups per
 frame. Main builds rider/critter/bird caches once per physics tick. `_draw`
@@ -169,31 +200,100 @@ lifecycle acceptance before calling it visually accepted or released.
 - `test_pair_dog_appearance.gd` loads the real pair, leash, and appearance
   scripts and covers exact setup RNG cadence, stable profile identity through
   every park lifecycle state, preserved node/leash identity, and parent-Canvas
-  redraw of all six profiles including the zero-forward case.
+  redraw of all six profiles including the zero-forward case. Its obsolete
+  three-color owner-palette assertion was removed after isolated review; every
+  dog, RNG, lifecycle, identity, and renderer assertion remains.
+- `test_human_appearance.gd` loads the real owner module and covers the exact
+  public API, stable ID order, canonical values/schema/types, defensive copies,
+  positive and negative key cycling, non-mutating malformed-data validation,
+  finite/color/enum/primitive/radius safety, every visual trait branch, RNG
+  isolation, zero/non-finite facing fallback, non-finite early return,
+  malformed-profile fallback, both phone states, and rendered body/screen
+  pixels for every canonical phone.
+- `test_pair_owner_appearance.gd` loads the real pair, owner appearance, dog
+  appearance, and leash scripts. It covers the exact four setup draws, raw
+  third/fourth profile keys, following RNG value, compatibility colors, equal
+  seeds, owner variety, dictionary identity through every lifecycle and
+  initialization/interruption path, pair/owner/dog/leash identity, leash
+  endpoint references, zero-velocity north fallback, parent-Canvas owner and
+  dog drawing, held phones, and draw-time RNG isolation.
 - The deterministic CI autowalk spends only about 4.9 seconds in freedom. It
   verifies whole-walk traversal, not a full NPC lifecycle, and does not
   guarantee that a live pair is encountered.
+
+### NPC owner appearance repository state
+
+Repository state captured on 2026-07-17:
+
+- Feature branch: `npc-owner-appearances`.
+- Isolated implementation checkpoint:
+  `3aaed22602359da70f1ddd063ce2912ac5e2f7b9`
+  (`Add reusable NPC owner appearances`).
+- The branch had no configured upstream and no pull request had been created.
+  Nothing from this branch had been pushed.
+- Local `main` and `origin/main` were both at baseline
+  `4bca50c` (`Plan reusable NPC owner appearances`) when captured.
+- The CI/changelog/handover integration commit containing this section sits
+  immediately above the isolated implementation checkpoint. A final
+  whole-branch review is required before any push or pull request.
+
+### NPC owner appearance automated evidence
+
+Final integration verification ran on 2026-07-17 on Windows 10 with Godot 4.7.
+The 15 non-pixel focused commands ran headless and the two owner appearance
+commands ran with the real GL Compatibility renderer because Windows headless
+uses dummy texture storage. Every command exited `0` and printed its marker:
+
+- `test_wrap: OK`, `test_critter_chase: OK`, `test_tangle_latch: OK`,
+  `test_freedom_traffic: OK`, `test_pair_direction: OK`,
+  `test_bandana_preview: OK`, `test_owner_label: OK`,
+  `test_bypasser_route: OK`, `test_rider_avoidance: OK`,
+  `test_pair_pond_avoidance: OK`, `test_pair_park_lifecycle: OK`,
+  `test_pair_park_slots: OK`, `test_pair_park_traffic: OK`,
+  `test_free_dog_variety: OK`, and `test_pair_dog_appearance: OK`.
+- `test_human_appearance: OK` and `test_pair_owner_appearance: OK` each
+  reported `OpenGL API 3.3.0 ... Compatibility` on the NVIDIA renderer and
+  completed their unconditional `SubViewport` phone body/screen pixel checks.
+- Street, park, beach, and market smokes each exited `0` with no `SCRIPT ERROR`,
+  `Parse Error`, or `Failed to load script`.
+- Fixed-60-FPS street and park autowalks each exited `0`, logged no script/load
+  errors, and printed `AUTOWALK FINISHED the whole walk at t=120.0`.
+
+CI installs Xvfb explicitly and runs both owner appearance tests through
+`xvfb-run -a` with `--rendering-method gl_compatibility` and no `--headless`,
+so Linux CI exercises real pixel readback too. These automated results do not
+establish manual visual acceptance.
 
 ### Manual acceptance still required
 
 No manual visual lifecycle acceptance is recorded for the post-v1.5 work.
 Shared free-dog and pair-dog appearance readability, animation, local bounds,
-and visual identity persistence also remain manually unverified.
+and visual identity persistence also remain manually unverified. The six new
+owner profiles have not been visually accepted by a human. Automated draw and
+pixel tests do not establish bun/accessory layering, phone legibility,
+silhouette or color readability, gait feel, local-scale quality, or visual
+continuity through walking, arrival, parking, recall, re-leashing, departure,
+and resumed walking.
 Run these checks in priority order:
 
-1. Watch an upward walker enter through the gate leashed, with no speed snap,
+1. Inspect all six owner profiles in motion and at rest, checking hair,
+   headwear, eyewear, bun/accessory layering, phone body and screen legibility,
+   silhouette/color contrast, proportions, and gait.
+2. Watch an upward walker enter through the gate leashed, with no speed snap,
    teleport, or invisible tangle.
-2. Fill multiple slots and confirm owners wait at distinct fence-side spots
+3. Fill multiple slots and confirm owners wait at distinct fence-side spots
    away from the player bench while the same dogs roam inside the yard.
-3. Confirm the parked leash is hidden, dogs stay bounded and greetable, and
+4. Confirm the parked leash is hidden, dogs stay bounded and greetable, and
    recall happens physically before the leash appears.
-4. Confirm recalled pairs clear the gate, release their slots, and continue
+5. Confirm recalled pairs clear the gate, release their slots, and continue
    downward through ordinary obstacle routing.
-5. Exercise three occupied slots and verify another upward walker passes
+6. Exercise three occupied slots and verify another upward walker passes
    through without stalling, stacking, or stealing/leaking a reservation.
-6. Trigger freedom/home transitions around arrival and recall, checking for
+7. Trigger freedom/home transitions around arrival and recall, checking for
    one-frame rope artifacts, double rewards, snaps, or stranded pairs.
-7. Confirm bikes/scooters stay absent during freedom and assess whether
+8. Confirm each owner retains the same visible profile through walking,
+   arrival, parking, recall, re-leashing, departure, and resumed walking.
+9. Confirm bikes/scooters stay absent during freedom and assess whether
    ordinary leash tangles remain readable and recoverable on walking legs.
 
 ### Inference and residual risk
@@ -207,12 +307,14 @@ have been manually assessed.
 
 ## 7. Recommended next work
 
-1. **Manual NPC lifecycle acceptance first.** Record observed failures before
-   tuning timing, movement, or presentation.
-2. **Then reusable owner appearance profiles.** Design neutral procedural
-   owner profiles for hats, glasses, bald spots, and long hair behind a
-   character-creator-ready boundary without changing owner gameplay.
-3. **Then roadmap content:** richer NPC-owner props/conversation, a real
+1. **Manual NPC owner and lifecycle acceptance first.** Record observed
+   profile, renderer, gait, and lifecycle-continuity failures before tuning.
+2. **Fix only observed appearance defects inside the appearance boundary.**
+   Do not alter pair behavior to tune presentation.
+3. **Keep future creator work separate.** It may consume stable IDs, defensive
+   profiles, validation, and rendering, but requires its own approved design
+   for player-owner integration, UI, and persistence.
+4. **Then roadmap content:** richer NPC-owner props/conversation, a real
    owner-throw/return fetch loop, more off-leash dog interactions, the
    bring-Tofu-home quest, Rainy Day level, and a shareable daily results card.
    The reusable dog appearance profiles are now available to a future

@@ -10,11 +10,6 @@ const ARRIVING := 1
 const PARKED := 2
 const RECALLING := 3
 const DEPARTING := 4
-const OWNER_COLORS := [
-	Color(0.5, 0.45, 0.55),
-	Color(0.45, 0.5, 0.42),
-	Color(0.55, 0.48, 0.4),
-]
 
 var failures := 0
 var fixtures: Array[Node] = []
@@ -118,7 +113,7 @@ func _test_exact_setup_rng(main: FakeMain, player: Node2D) -> void:
 	seed(RNG_SEED)
 	var expected_speed := randf_range(58.0, 82.0)
 	var expected_seed_o := randf() * 10.0
-	var owner_key := randi()
+	var _owner_key := randi()
 	var dog_key := randi()
 	var expected_next := randf()
 
@@ -134,7 +129,6 @@ func _test_exact_setup_rng(main: FakeMain, player: Node2D) -> void:
 
 	_check(pair.vel.is_equal_approx(direction * expected_speed), "velocity uses the first randf_range")
 	_check(is_equal_approx(pair.seed_o, expected_seed_o), "seed_o uses the second randf")
-	_check(pair.owner_col == OWNER_COLORS[owner_key % OWNER_COLORS.size()], "owner color uses the third randi")
 	var expected_profile: Dictionary = DogAppearanceScript.profile_for_key(dog_key)
 	_check(pair.appearance_profile == expected_profile, "raw fourth randi selects the dog profile")
 	_check(pair.dog_col == expected_profile["base_color"], "compatibility dog_col follows the profile")

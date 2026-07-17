@@ -2,6 +2,20 @@
 
 Append-only session history, newest first.
 
+## 2026-07-17 — reusable NPC owner appearances
+
+- Added six neutral procedural NPC owner profiles with distinct proportions,
+  hair, headwear, eyewear, palettes, and phone treatments behind a reusable
+  stateless appearance boundary.
+- NPC pairs reuse their existing owner-color random draw as the raw profile key,
+  preserving exact setup RNG cadence, downstream randomness, and the existing
+  dog appearance selection.
+- The same defensive owner profile now persists through walking, arrival,
+  parking, recall, re-leashing, departure, and resumed walking while the real
+  owner, dog, and leash nodes remain unchanged.
+- Added real-script catalog, validation, renderer, phone-pixel, RNG, lifecycle,
+  node-identity, and parent-Canvas regressions.
+
 ## 2026-07-17 — shared NPC dog visual variety
 
 - Added six neutral procedural dog profiles with distinct silhouettes, ears,
