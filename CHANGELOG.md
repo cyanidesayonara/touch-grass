@@ -2,6 +2,14 @@
 
 Append-only session history, newest first.
 
+## 2026-07-18 — v1.25: records / progress screen
+
+- A proper career overview: from the walk-select screen, press Q (or X on
+  a pad) to see YOUR WALKS - every walk's stars, goals x/N, and best run
+  (bones + time), or "locked (N stars)" for the ones still ahead, plus
+  your total stars and lifetime bones. Back with E/B. Very Tony Hawk, and
+  it makes the whole 8-walk progression legible at a glance.
+
 ## 2026-07-18 — v1.24: combo quest + more cosmetics
 
 - The combo meter finally feeds progression: every walk now has a "land a

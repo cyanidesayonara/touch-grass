@@ -242,6 +242,8 @@ var challenge_offered := false
 var dog_carrying := false
 var paused := false
 var pause_l: Label
+var in_progress_view := false
+var progress_l: Label
 var _redraw_acc := 0.0
 # a neighbour's ball: a parked NPC owner throws one you can intercept and
 # return to them for a shared-fetch bonus
@@ -1018,7 +1020,7 @@ func _build_hud() -> void:
 	record_l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	record_l.modulate.a = 0.85
 	var version_l := _hud_label(Vector2(1150, 686), 13)
-	version_l.text = "v1.24"
+	version_l.text = "v1.25"
 	version_l.modulate.a = 0.5
 	owner_l = _hud_label(Vector2(0, 296), 26)
 	owner_l.size = Vector2(1280, 34)
@@ -1120,6 +1122,10 @@ func _build_hud() -> void:
 	pause_l.size = Vector2(1280, 120)
 	pause_l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	pause_l.visible = false
+	progress_l = _hud_label(Vector2(0, 70), 19)
+	progress_l.size = Vector2(1280, 560)
+	progress_l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	progress_l.visible = false
 	_update_hud()
 
 
@@ -1267,11 +1273,28 @@ func _refresh_menu_text() -> void:
 			if not Game.is_unlocked(Game.level_id):
 				prompt_l.text = "locked - earn %d stars" % int(Game.STAR_GATE.get(Game.level_id, 0))
 			else:
-				prompt_l.text = "%s / %s  browse     %s  choose     %s  wardrobe" % [_kb_or_pad("A", "<"), _kb_or_pad("D", ">"), go, _kb_or_pad("E", "B")]
+				prompt_l.text = "%s / %s  browse     %s  choose     %s  wardrobe     %s  progress" % [_kb_or_pad("A", "<"), _kb_or_pad("D", ">"), go, _kb_or_pad("E", "B"), _kb_or_pad("Q", "X")]
 			hint_l.visible = false
 		2:
 			prompt_l.text = "press  %s  to go walkies" % go
 			hint_l.visible = true
+
+
+func _progress_text() -> String:
+	var t := "YOUR WALKS\n\n"
+	for lv in Game.LEVELS:
+		var nm: String = Game.LEVEL_NAMES[lv]
+		if not Game.is_unlocked(lv):
+			t += "%s   -   locked (%d stars)\n" % [nm, int(Game.STAR_GATE.get(lv, 0))]
+			continue
+		var total: int = (LEVEL_GOAL_IDS.get(lv, []) as Array).size()
+		var rec := "no record yet"
+		if Game.records.has(lv) and int(Game.records[lv].get("bones", 0)) > 0:
+			rec = "%d bones  %ds" % [int(Game.records[lv].bones), int(Game.records[lv].time)]
+		t += "%s   %s   goals %d/%d   %s\n" % [nm, Game.star_str(Game.stars(lv)), Game.goals_count(lv), total, rec]
+	t += "\nTOTAL:  %d stars    %d bones banked\n\n%s  back" % [
+		Game.total_stars(), Game.total_bones, _kb_or_pad("E", "B")]
+	return t
 
 
 func _hud_label(pos: Vector2, size_px: int) -> Label:
@@ -1507,6 +1530,23 @@ func _process(_delta: float) -> void:
 			_apply_menu_step()
 		return
 	if not started:
+		# the career overview: every walk's stars, goals and best run
+		if in_progress_view:
+			if Input.is_action_just_pressed("bark") or Input.is_action_just_pressed("pee") or Input.is_action_just_pressed("plant"):
+				in_progress_view = false
+				progress_l.visible = false
+				dim.visible = false
+				_apply_menu_step()
+				_refresh_menu_text()
+			return
+		if menu_step == 1 and Input.is_action_just_pressed("pee"):
+			in_progress_view = true
+			for l: Label in [title_l, sub_l, prompt_l, select_l, owner_l, night_l, weather_l, record_l, hint_l]:
+				l.visible = false
+			progress_l.text = _progress_text()
+			progress_l.visible = true
+			dim.visible = true
+			return
 		# Tony Hawk rules: one screen, one instruction. Step 0 is just
 		# the title; step 1 picks the walk; step 2 picks the details.
 		if menu_step == 1 and Input.is_action_just_pressed("bark"):

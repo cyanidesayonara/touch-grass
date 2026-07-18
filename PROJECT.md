@@ -128,7 +128,10 @@ Every feature must serve at least one. If it serves none, cut it.
 - **v1.24 - shipped.** Combo quest ("land a x5 trick combo" on every
   walk - the combo meter now feeds stars, not just bones) + more
   cosmetics (Teal/Violet collars, Crimson/Plum bandanas).
-- **v1.25 - polish + tuning.** Playtest feedback pass: chase/combo feel,
+- **v1.25 - shipped.** Records / progress screen: a career overview from
+  the walk-select (Q/X) - all walks' stars, goals and best runs, totals,
+  locked gates. Makes the 8-walk progression legible.
+- **v1.26 - polish + tuning.** Playtest feedback pass: chase/combo feel,
   level difficulty, and bespoke geometry for the reused-base walks
   (El Aguacero, El Gotic, El Bosc, L'Estacio).
 - **v2.0 - The Product.** Watercolor art integration, sound and music
