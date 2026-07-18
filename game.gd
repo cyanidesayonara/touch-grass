@@ -25,7 +25,9 @@ const COLLARS := {
 	"red": {"name": "Red (classic)", "cost": 0, "col": Color(0.72, 0.16, 0.14)},
 	"blue": {"name": "Blue", "cost": 40, "col": Color(0.2, 0.4, 0.7)},
 	"pink": {"name": "Pink", "cost": 40, "col": Color(0.9, 0.45, 0.62)},
+	"teal": {"name": "Teal", "cost": 60, "col": Color(0.15, 0.6, 0.58)},
 	"gold": {"name": "Gold", "cost": 120, "col": Color(0.85, 0.68, 0.2)},
+	"violet": {"name": "Violet", "cost": 150, "col": Color(0.55, 0.3, 0.72)},
 	"rainbow": {"name": "Rainbow", "cost": 250, "col": Color(0.8, 0.3, 0.5)},
 }
 const BANDANAS := {
@@ -33,6 +35,8 @@ const BANDANAS := {
 	"navy": {"name": "Navy bandana", "cost": 60, "col": Color(0.2, 0.28, 0.45)},
 	"forest": {"name": "Forest bandana", "cost": 60, "col": Color(0.25, 0.42, 0.3)},
 	"sunny": {"name": "Sunny bandana", "cost": 100, "col": Color(0.9, 0.72, 0.25)},
+	"crimson": {"name": "Crimson bandana", "cost": 100, "col": Color(0.7, 0.15, 0.2)},
+	"plum": {"name": "Plum bandana", "cost": 140, "col": Color(0.45, 0.22, 0.4)},
 }
 
 const SAVE_PATH := "user://records.cfg"

@@ -2,6 +2,15 @@
 
 Append-only session history, newest first.
 
+## 2026-07-18 — v1.24: combo quest + more cosmetics
+
+- The combo meter finally feeds progression: every walk now has a "land a
+  x5 trick combo" goal, so stringing tricks together counts toward your
+  stars, not just bones. It's a master-tier goal (the x5 target is one
+  constant to tune). The HUD shows your best-so-far as x/5 progress.
+- Two new collars (Teal, Violet) and two new bandanas (Crimson, Plum) in
+  the wardrobe - more to spend those bones on.
+
 ## 2026-07-18 — v1.23: pause menu
 
 - A real pause, at last: ESC (or the Back button) mid-walk freezes the

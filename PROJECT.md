@@ -125,7 +125,10 @@ Every feature must serve at least one. If it serves none, cut it.
   first "the ground moves you" mechanic. Reuses the boulevard layout.
 - **v1.23 - shipped.** Pause menu (ESC/Back): resume, restart, or quit to
   the walk-select menu mid-walk. A basic shippable-QoL gap closed.
-- **v1.24 - polish + tuning.** Playtest feedback pass: chase/combo feel,
+- **v1.24 - shipped.** Combo quest ("land a x5 trick combo" on every
+  walk - the combo meter now feeds stars, not just bones) + more
+  cosmetics (Teal/Violet collars, Crimson/Plum bandanas).
+- **v1.25 - polish + tuning.** Playtest feedback pass: chase/combo feel,
   level difficulty, and bespoke geometry for the reused-base walks
   (El Aguacero, El Gotic, El Bosc, L'Estacio).
 - **v2.0 - The Product.** Watercolor art integration, sound and music
