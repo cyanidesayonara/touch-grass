@@ -2,6 +2,21 @@
 
 Append-only session history, newest first.
 
+## 2026-07-18 — v1.26: sound (procedural SFX)
+
+- The game has a voice at last. Every sound is SYNTHESISED at startup from
+  tones, sweeps and noise - no audio assets, no files. A woof for barks, a
+  ding for marks/sniffs/snacks, a fetch chirp, a whoosh for flings, a
+  crack for the phone, a splash for the pond, an ascending arpeggio for
+  combos, a chime for stars/prizes/deliveries/Tofu, a save ding, a hiss
+  for the wall cats, a boing for tangles, and a UI blip.
+- Autoloaded as `Sfx` (built once, survives scene reloads) with a 10-voice
+  pool so sounds overlap; light random pitch variation keeps repeats from
+  grating. Synthesis uses a LOCAL RNG so it never touches the global seed
+  the deterministic autowalk depends on.
+- Web note: browsers gate audio until the first input; pressing a key to
+  start the walk unlocks it.
+
 ## 2026-07-18 — v1.25: records / progress screen
 
 - A proper career overview: from the walk-select screen, press Q (or X on

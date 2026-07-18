@@ -1020,7 +1020,7 @@ func _build_hud() -> void:
 	record_l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	record_l.modulate.a = 0.85
 	var version_l := _hud_label(Vector2(1150, 686), 13)
-	version_l.text = "v1.25"
+	version_l.text = "v1.26"
 	version_l.modulate.a = 0.5
 	owner_l = _hud_label(Vector2(0, 296), 26)
 	owner_l.size = Vector2(1280, 34)
@@ -1370,6 +1370,7 @@ func _update_combo_hud() -> void:
 
 
 func on_combo_banked(score: int, mult: int, bonus: int) -> void:
+	Sfx.play("combo", 1.0 + 0.05 * mult)
 	if bonus > 0:
 		bones += bonus
 	var col := Color(1.0, 0.85, 0.4) if mult < 5 else Color(1.0, 0.7, 0.85)
@@ -1406,6 +1407,7 @@ func start_challenge(giver: Node2D, target: int, seconds: float) -> void:
 
 
 func on_challenge_done(win: bool, target: int, count: int) -> void:
+	Sfx.play("star" if win else "ui")
 	if is_instance_valid(challenge_giver):
 		challenge_giver.resolve(win)
 	if win:
@@ -1575,6 +1577,7 @@ func _process(_delta: float) -> void:
 			if menu_step == 1 and not Game.is_unlocked(Game.level_id):
 				select_l.text = "%s  (locked)" % Game.LEVEL_NAMES[Game.level_id]
 				return
+			Sfx.play("ui")
 			if menu_step < 2:
 				menu_step += 1
 				Game.menu_step = menu_step
@@ -1644,6 +1647,7 @@ func _apply_leash(delta: float) -> void:
 		# a fresh fling must never be arrested by a residual wrap
 		human.just_flung = false
 		flings_done += 1
+		Sfx.play("fling")
 		combo.add("FLING", 8)
 		leash.free_slip_t = 1.2
 	var used: float = leash.used_length()
@@ -2206,6 +2210,7 @@ func _pairs(delta: float) -> void:
 		if p.update_tangle_state(crossing, delta):
 			tangles += 1
 			bones += 3
+			Sfx.play("tangle")
 			combo.add("TANGLE", 3)
 			float_text(dog.global_position, "TANGLED! +3", Color(1, 0.85, 0.7))
 
@@ -2261,6 +2266,7 @@ func _hazards(delta: float) -> void:
 		var was_swim: bool = dog.swimming
 		dog.swimming = dog_wet
 		if dog_wet and not was_swim:
+			Sfx.play("splash")
 			float_text(dog.global_position, "splish!", Color(0.7, 0.85, 1.0))
 			swam = true
 		var hum_wet: bool = pond.grow(-4.0).has_point(human.global_position)
@@ -2294,16 +2300,19 @@ func _pickups(delta: float) -> void:
 	if not prize_taken and prize_pos.x < INF and dog.global_position.distance_to(prize_pos) < 28.0:
 		prize_taken = true
 		bones += 8
+		Sfx.play("star", 0.9)
 		float_text(prize_pos, "got it! +8", Color(1, 0.9, 0.5))
 	# carry mission: grab it, then take it to the drop-off
 	if carry_pickup.x < INF:
 		if carry_state == 0 and dog.global_position.distance_to(carry_pickup) < 28.0:
 			carry_state = 1
+			Sfx.play("pickup", 0.9)
 			float_text(carry_pickup, "got %s!" % carry_item, Color(0.85, 1.0, 0.85))
 			_update_hud()
 		elif carry_state == 1 and dog.global_position.distance_to(carry_drop) < 34.0:
 			carry_state = 2
 			bones += 10
+			Sfx.play("star")
 			combo.add("DELIVER", 5)
 			float_text(carry_drop, "delivered! +10", Color(0.8, 1.0, 0.8))
 			_slowmo()
@@ -2317,6 +2326,7 @@ func _pickups(delta: float) -> void:
 				h.done = true
 				bones += 2
 				sniffs_done += 1
+				Sfx.play("mark", 1.2)
 				combo.add("SNIFF", 2)
 				float_text(h.pos, "good sniff +2", Color(1, 0.95, 0.7))
 				_update_hud()
@@ -2325,6 +2335,7 @@ func _pickups(delta: float) -> void:
 			k.eaten = true
 			bones += 1
 			kebabs_eaten += 1
+			Sfx.play("snack")
 			combo.add("SNACK", 1)
 			float_text(k.pos, "snack +1", Color(1, 0.95, 0.7))
 			_update_hud()
@@ -2359,6 +2370,7 @@ func _bodily(delta: float) -> void:
 			if mark_progress >= 0.7:
 				bones += 3
 				marks.append(target)
+				Sfx.play("mark")
 				combo.add("MARK", 3)
 				float_text(target, "marked! +3", Color(1, 0.95, 0.7))
 				mark_progress = 0.0
@@ -2570,6 +2582,7 @@ func _spawn_wallcats() -> void:
 
 
 func on_wallcat_spooked(pos: Vector2) -> void:
+	Sfx.play("hiss")
 	wall_cats_spooked += 1
 	bones += 2
 	combo.add("SHOO", 3)
@@ -2626,6 +2639,7 @@ func _romp(delta: float) -> void:
 
 
 func on_tofu_home(pos: Vector2) -> void:
+	Sfx.play("star")
 	tofu_home = true
 	bones += 15
 	float_text(pos, "TOFU'S COMING HOME! +15", Color(1, 0.85, 0.7))
@@ -2643,6 +2657,7 @@ func on_ball_returned(thrower: Node2D) -> void:
 	romp_catches += 1
 	var reward := 3 if mine else 4
 	bones += reward
+	Sfx.play("fetch")
 	combo.add("FETCH", reward)
 	float_text(thrower.global_position, ("good girl! +%d" % reward) if mine else ("shared! +%d" % reward), Color(0.8, 1.0, 0.8))
 	if mine and is_instance_valid(thrower):
@@ -2809,6 +2824,7 @@ func _build_daily_card(run_done: int, total: int, rec: Dictionary) -> void:
 
 
 func on_bark(pos: Vector2) -> void:
+	Sfx.play("bark")
 	if human.global_position.distance_to(pos) < 170.0:
 		human.halt(0.8)
 	for s in get_tree().get_nodes_in_group("squirrels"):
@@ -2854,6 +2870,7 @@ func on_stumble_save(pos: Vector2) -> void:
 			streak += 1
 			saves_done += 1
 			bones += streak
+			Sfx.play("save", 1.0 + 0.06 * streak)
 			combo.add("SAVE", 5)
 			float_text(pos + Vector2(0, -30), "NICE SAVE +%d" % streak, Color(0.7, 1.0, 0.75))
 			_slowmo()
@@ -2870,6 +2887,7 @@ func _slowmo() -> void:
 func crack_phone(pos: Vector2) -> void:
 	if auto_walk:
 		return  # the attract/CI bot carries an unbreakable phone
+	Sfx.play("crack", 1.0, -2.0)
 	phone_hp -= 1
 	streak = 0
 	shake_t = 1.0
@@ -2885,6 +2903,7 @@ func crack_phone(pos: Vector2) -> void:
 func close_call(pos: Vector2) -> void:
 	bones += 1
 	close_calls += 1
+	Sfx.play("save", 1.15)
 	combo.add("CLOSE", 2)
 	float_text(pos, "close call +1", Color(0.75, 0.9, 1.0))
 	_update_hud()

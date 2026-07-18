@@ -9,6 +9,7 @@ run/main_scene="res://main.tscn"
 [autoload]
 
 Game="*res://game.gd"
+Sfx="*res://sfx.gd"
 
 [display]
 

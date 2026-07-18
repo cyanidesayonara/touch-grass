@@ -131,7 +131,12 @@ Every feature must serve at least one. If it serves none, cut it.
 - **v1.25 - shipped.** Records / progress screen: a career overview from
   the walk-select (Q/X) - all walks' stars, goals and best runs, totals,
   locked gates. Makes the 8-walk progression legible.
-- **v1.26 - polish + tuning.** Playtest feedback pass: chase/combo feel,
+- **v1.26 - shipped.** Sound: fully procedural SFX (synthesised at
+  startup, no assets) for barks, pickups, fetch, flings, phone cracks,
+  splashes, combos, stars, saves, wall-cat hisses, tangles and UI.
+  Autoloaded `Sfx`, 10-voice pool, local-RNG synthesis. Music and a
+  proper mix are the next audio step (v2.0 sound pass).
+- **v1.27 - polish + tuning.** Playtest feedback pass: chase/combo feel,
   level difficulty, and bespoke geometry for the reused-base walks
   (El Aguacero, El Gotic, El Bosc, L'Estacio).
 - **v2.0 - The Product.** Watercolor art integration, sound and music
